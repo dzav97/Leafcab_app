@@ -38,7 +38,8 @@ dependencies:
   path_provider: ^2.1.0    # Untuk mencari path penyimpanan di HP
   path: ^1.9.0
   tflite_v2: ^1.0.0        # Library tflite
-  image_picker: ^1.0.4     # Untuk ambil foto dari kamera/galeri
+  image_picker: ^1.1.2     # Untuk ambil foto dari kamera/galeri
+  image_cropper: ^8.0.0    # Untuk fitur potong gambar
 
 dev_dependencies:
   flutter_test:
