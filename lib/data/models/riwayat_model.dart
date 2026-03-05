@@ -1,56 +1,49 @@
-class HasilDeteksi {
-  final int? id;
+class RiwayatDeteksi {
+  final String localId; // UUID, kunci global (penting untuk sync)
+  final DateTime timestamp;
+  final String gambar; // local image path
   final String label;
   final double confidence;
+  final String description;
 
-  HasilDeteksi({this.id, required this.label, required this.confidence});
-
-  factory HasilDeteksi.fromMap(Map<String, dynamic> map) {
-    return HasilDeteksi(
-      id: map['id'],
-      label: map['label'],
-      confidence: map['confidence'].toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'label': label,
-      'confidence': confidence,
-    };
-  }
-}
-
-class RiwayatDeteksi {
-  final int? id;
-  final DateTime timestamp;
-  final String gambar; // Path lokasi file gambar yang disimpan di HP
-  final HasilDeteksi hasil; // Relasi ke HasilDeteksi
+  // untuk nanti sync (v2)
+  final String syncState; // local_only | pending_upload | synced | pending_delete
+  final String? storagePath; // path di Firebase Storage nanti
 
   RiwayatDeteksi({
-    this.id,
+    required this.localId,
     required this.timestamp,
     required this.gambar,
-    required this.hasil,
+    required this.label,
+    required this.confidence,
+    required this.description,
+    this.syncState = 'local_only',
+    this.storagePath,
   });
 
-  factory RiwayatDeteksi.fromMap(Map<String, dynamic> map, HasilDeteksi hasilObj) {
+  factory RiwayatDeteksi.fromMap(Map<String, dynamic> map) {
     return RiwayatDeteksi(
-      id: map['id'],
-      timestamp: DateTime.parse(map['timestamp']),
-      gambar: map['gambar'],
-      hasil: hasilObj,
+      localId: map['local_id'] as String,
+      timestamp: DateTime.parse(map['timestamp'] as String),
+      gambar: map['gambar'] as String,
+      label: map['label'] as String,
+      confidence: (map['confidence'] as num).toDouble(),
+      description: (map['description'] ?? '') as String,
+      syncState: (map['sync_state'] ?? 'local_only') as String,
+      storagePath: map['storage_path'] as String?,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'local_id': localId,
       'timestamp': timestamp.toIso8601String(),
       'gambar': gambar,
-      // Biasanya ID hasil disimpan sebagai foreign key di tabel riwayat
-      'hasil_id': hasil.id, 
+      'label': label,
+      'confidence': confidence,
+      'description': description,
+      'sync_state': syncState,
+      'storage_path': storagePath,
     };
   }
 }

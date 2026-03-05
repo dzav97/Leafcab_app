@@ -1,9 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'crop_screen.dart';
 
-import 'crop_screen.dart'; // <-- tambah ini
+import 'package:uuid/uuid.dart';
+import '../../repository/riwayat_repository.dart';
+import '../../data/models/riwayat_model.dart';
 
 class DeteksiScreen extends StatefulWidget {
   const DeteksiScreen({super.key});
@@ -180,10 +182,58 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
   }
 }
 
-/// HALAMAN HASIL (tetap sama)
-class HasilScreen extends StatelessWidget {
+/// HALAMAN HASIL 
+class HasilScreen extends StatefulWidget {
   const HasilScreen({super.key, required this.imageFile});
   final File imageFile;
+
+  @override
+  State<HasilScreen> createState() => _HasilScreenState();
+}
+
+class _HasilScreenState extends State<HasilScreen> {
+  final repo = RiwayatRepository();
+  final uuid = const Uuid();
+  bool _saved = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _saveHistoryOnce();
+  }
+
+  Future<void> _saveHistoryOnce() async {
+    if (_saved) return;
+    _saved = true;
+
+    // TODO: nanti ganti ini dari output TFLite
+    final label = "Dummy Label";
+    final confidence = 0.87;
+    final description = "Dummy deskripsi (nanti dari mapping penyakit).";
+
+    final record = RiwayatDeteksi(
+      localId: uuid.v4(),
+      timestamp: DateTime.now(),
+      gambar: widget.imageFile.path,
+      label: label,
+      confidence: confidence,
+      description: description,
+      syncState: 'local_only',
+    );
+
+    try {
+      await repo.simpan(record);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Riwayat tersimpan")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal simpan riwayat: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +245,7 @@ class HasilScreen extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: Image.file(imageFile, fit: BoxFit.cover),
+              child: Image.file(widget.imageFile, fit: BoxFit.cover),
             ),
             const SizedBox(height: 16),
             const Text("Hasil: (nanti output TFLite ditaruh di sini)"),

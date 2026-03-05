@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -15,24 +13,29 @@ class DatabaseHelper {
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
+  Future<Database> _initDB(String fileName) async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
+    final path = join(dbPath, fileName);
 
-    // Cek apakah database sudah ada di internal storage HP
-    final exists = await databaseExists(path);
+    return openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
+  }
 
-    if (!exists) {
-      // Jika belum ada, salin dari assets
-      try {
-        await Directory(dirname(path)).create(recursive: true);
-        ByteData data = await rootBundle.load(join('assets/db', filePath));
-        List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-        await File(path).writeAsBytes(bytes, flush: true);
-      } catch (e) {
-        print("Error copying database: $e");
-      }
-    }
-    return await openDatabase(path);
+  Future<void> _createDB(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE riwayat_deteksi (
+        local_id TEXT PRIMARY KEY,
+        timestamp TEXT NOT NULL,
+        gambar TEXT NOT NULL,
+        label TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        description TEXT,
+        sync_state TEXT NOT NULL DEFAULT 'local_only',
+        storage_path TEXT
+      )
+    ''');
   }
 }

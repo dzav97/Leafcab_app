@@ -1,46 +1,61 @@
-import '../data/dataproviders/database_helper.dart';
-import '../data/models/riwayat_model.dart';
+import 'dart:io';
+import 'package:sqflite/sqflite.dart';
+import '../../data/dataproviders/database_helper.dart';
+import '../../data/models/riwayat_model.dart';
 
 class RiwayatRepository {
   final dbHelper = DatabaseHelper.instance;
 
-  // Sesuai diagram: +simpan(riwayat: RiwayatDeteksi)
   Future<void> simpan(RiwayatDeteksi riwayat) async {
     final db = await dbHelper.database;
-    
-    // Simpan hasil deteksi terlebih dahulu untuk mendapatkan ID
-    int hasilId = await db.insert('hasil_deteksi', riwayat.hasil.toMap());
-    
-    // Simpan riwayat dengan foreign key hasilId
-    await db.insert('riwayat_deteksi', {
-      'timestamp': riwayat.timestamp.toIso8601String(),
-      'gambar': riwayat.gambar,
-      'hasil_id': hasilId,
-    });
+
+    print("MENYIMPAN DATA KE DATABASE:");
+    print(riwayat.toMap());
+
+    await db.insert(
+      'riwayat_deteksi',
+      riwayat.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    print("DATA BERHASIL DISIMPAN");
   }
 
-  // Sesuai diagram: +ambilDaftar() : List
   Future<List<RiwayatDeteksi>> ambilDaftar() async {
     final db = await dbHelper.database;
-    
-    // Join tabel riwayat dan hasil untuk mendapatkan data lengkap
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT r.*, h.label, h.confidence 
-      FROM riwayat_deteksi r
-      JOIN hasil_deteksi h ON r.hasil_id = h.id
-      ORDER BY r.timestamp DESC
-    ''');
+    final maps = await db.query(
+      'riwayat_deteksi',
+      orderBy: 'timestamp DESC',
+    );
 
-    return List.generate(maps.length, (i) {
-      return RiwayatDeteksi(
-        id: maps[i]['id'],
-        timestamp: DateTime.parse(maps[i]['timestamp']),
-        gambar: maps[i]['gambar'],
-        hasil: HasilDeteksi(
-          label: maps[i]['label'],
-          confidence: maps[i]['confidence'],
-        ),
-      );
-    });
+    return maps.map((m) => RiwayatDeteksi.fromMap(m)).toList();
+  }
+
+  Future<void> hapus(String localId) async {
+    final db = await dbHelper.database;
+
+    // ambil path file dulu
+    final rows = await db.query(
+      'riwayat_deteksi',
+      columns: ['gambar'],
+      where: 'local_id = ?',
+      whereArgs: [localId],
+      limit: 1,
+    );
+
+    if (rows.isNotEmpty) {
+      final path = rows.first['gambar'] as String;
+      final f = File(path);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    }
+
+    // hapus row DB
+    await db.delete(
+      'riwayat_deteksi',
+      where: 'local_id = ?',
+      whereArgs: [localId],
+    );
   }
 }

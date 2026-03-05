@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
 class CropScreen extends StatefulWidget {
   final String imagePath;
@@ -23,35 +26,54 @@ class _CropScreenState extends State<CropScreen> {
   }
 
   Future<void> _startCrop() async {
-    try {
-      final cropped = await ImageCropper().cropImage(
-        sourcePath: widget.imagePath,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        compressQuality: 85,
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarTitle: 'Potong Gambar',
-            toolbarColor: primaryGreen,
-            toolbarWidgetColor: Colors.white,
-            activeControlsWidgetColor: accentGreen,
-            lockAspectRatio: true,
-          ),
-          IOSUiSettings(title: 'Potong Gambar'),
-        ],
-      );
+  try {
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: widget.imagePath,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      compressQuality: 85,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Potong Gambar',
+          toolbarColor: primaryGreen,
+          toolbarWidgetColor: Colors.white,
+          activeControlsWidgetColor: accentGreen,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(title: 'Potong Gambar'),
+      ],
+    );
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (cropped != null) {
-        Navigator.pop(context, File(cropped.path));
-      } else {
-        Navigator.pop(context); // cancel
-      }
-    } catch (e) {
-      debugPrint("Crop error: $e");
-      if (mounted) Navigator.pop(context);
+    if (cropped == null) {
+      Navigator.pop(context); // cancel
+      return;
     }
+
+    // ✅ SIMPAN PERMANEN KE FOLDER APP
+    final dir = await getApplicationDocumentsDirectory();
+    final imagesDir = Directory(p.join(dir.path, 'history_images'));
+    if (!await imagesDir.exists()) {
+      await imagesDir.create(recursive: true);
+    }
+
+    final id = const Uuid().v4();
+    final newPath = p.join(imagesDir.path, '$id.jpg');
+
+    // Copy file cropped (yang biasanya berada di cache) ke path permanen
+    final savedFile = await File(cropped.path).copy(newPath);
+
+    // Optional: hapus file temp cropped agar tidak numpuk
+    try {
+      await File(cropped.path).delete();
+    } catch (_) {}
+
+    Navigator.pop(context, savedFile);
+  } catch (e) {
+    debugPrint("Crop error: $e");
+    if (mounted) Navigator.pop(context);
   }
+}
 
   @override
   Widget build(BuildContext context) {

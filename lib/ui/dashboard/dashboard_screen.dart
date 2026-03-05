@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../deteksi/deteksi_screen.dart';
+import '../riwayat/riwayat_screen.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,8 +21,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late final List<Widget> _pages = [
     const _HomeContent(), // 0 = Home (isi dashboard kamu)
     const Center(child: Text("Halaman Artikel")), // 1
-    const DeteksiScreen(), // 2 = Deteksi (REAL)
-    const Center(child: Text("Halaman Riwayat")), // 3
+    const DeteksiScreen(), // 2 
+    const RiwayatScreen(), // 3
     const Center(child: Text("Halaman Tentang")), // 4
   ];
 
