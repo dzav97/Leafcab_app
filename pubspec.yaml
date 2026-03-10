@@ -37,10 +37,11 @@ dependencies:
   sqflite: ^2.3.0          # Untuk database SQLite
   path_provider: ^2.1.0    # Untuk mencari path penyimpanan di HP
   path: ^1.9.0
-  tflite_v2: ^1.0.0        # Library tflite
+  # tflite_v2: ^1.0.0        # Library tflite
   image_picker: ^1.1.2     # Untuk ambil foto dari kamera/galeri
   image_cropper: ^8.0.0    # Untuk fitur potong gambar
   uuid: ^4.5.1
+  tflite_flutter: ^0.12.0
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,7 @@ flutter:
   #  - assets/model/
   #  - assets/db/leafcab.db
     - assets/images/
+    - assets/model/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

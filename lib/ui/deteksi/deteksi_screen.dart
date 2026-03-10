@@ -6,6 +6,7 @@ import 'crop_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../../repository/riwayat_repository.dart';
 import '../../data/models/riwayat_model.dart';
+import '../../services/tflite_service.dart';
 
 class DeteksiScreen extends StatefulWidget {
   const DeteksiScreen({super.key});
@@ -194,6 +195,7 @@ class HasilScreen extends StatefulWidget {
 class _HasilScreenState extends State<HasilScreen> {
   final repo = RiwayatRepository();
   final uuid = const Uuid();
+  final tflite = TfliteService();
   bool _saved = false;
 
   @override
@@ -206,29 +208,38 @@ class _HasilScreenState extends State<HasilScreen> {
     if (_saved) return;
     _saved = true;
 
-    // TODO: nanti ganti ini dari output TFLite
-    final label = "Dummy Label";
-    final confidence = 0.87;
-    final description = "Dummy deskripsi (nanti dari mapping penyakit).";
-
-    final record = RiwayatDeteksi(
-      localId: uuid.v4(),
-      timestamp: DateTime.now(),
-      gambar: widget.imageFile.path,
-      label: label,
-      confidence: confidence,
-      description: description,
-      syncState: 'local_only',
-    );
-
     try {
+
+      // 🔥 jalankan model TFLite
+      final result = await tflite.predictDummy(); 
+      // nanti diganti predictImage(widget.imageFile)
+
+      final label = result.label;
+      final confidence = result.confidence;
+
+      final description = "Deskripsi sementara untuk $label";
+
+      final record = RiwayatDeteksi(
+        localId: uuid.v4(),
+        timestamp: DateTime.now(),
+        gambar: widget.imageFile.path,
+        label: label,
+        confidence: confidence,
+        description: description,
+        syncState: 'local_only',
+      );
+
       await repo.simpan(record);
+
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Riwayat tersimpan")),
       );
+
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Gagal simpan riwayat: $e")),
       );
