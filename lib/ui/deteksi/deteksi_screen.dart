@@ -209,10 +209,7 @@ class _HasilScreenState extends State<HasilScreen> {
     _saved = true;
 
     try {
-
-      // 🔥 jalankan model TFLite
-      final result = await tflite.predictDummy(); 
-      // nanti diganti predictImage(widget.imageFile)
+      final result = await tflite.predictImage(widget.imageFile);
 
       final label = result.label;
       final confidence = result.confidence;
@@ -236,7 +233,6 @@ class _HasilScreenState extends State<HasilScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Riwayat tersimpan")),
       );
-
     } catch (e) {
       if (!mounted) return;
 
