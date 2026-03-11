@@ -1,12 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'crop_screen.dart';
 
-import 'package:uuid/uuid.dart';
-import '../../repository/riwayat_repository.dart';
-import '../../data/models/riwayat_model.dart';
-import '../../services/tflite_service.dart';
+import 'crop_screen.dart';
+import 'hasil_screen.dart';
 
 class DeteksiScreen extends StatefulWidget {
   const DeteksiScreen({super.key});
@@ -35,7 +32,6 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
 
       if (picked == null) return;
 
-      // ✅ pindah ke halaman crop
       final croppedFile = await Navigator.push<File?>(
         context,
         MaterialPageRoute(
@@ -43,7 +39,7 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
         ),
       );
 
-      if (croppedFile == null) return; // user cancel crop
+      if (croppedFile == null) return;
 
       if (!mounted) return;
       setState(() => _image = croppedFile);
@@ -72,7 +68,10 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
     return Scaffold(
       backgroundColor: bgGreen,
       appBar: AppBar(
-        title: const Text("Deteksi", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Deteksi",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: primaryGreen,
@@ -111,7 +110,11 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
                   border: Border.all(color: cardGreen, width: 2),
                 ),
                 child: _image == null
-                    ? const Icon(Icons.camera_alt_outlined, size: 100, color: cardGreen)
+                    ? const Icon(
+                        Icons.camera_alt_outlined,
+                        size: 100,
+                        color: cardGreen,
+                      )
                     : ClipRRect(
                         borderRadius: BorderRadius.circular(30),
                         child: Image.file(_image!, fit: BoxFit.cover),
@@ -146,11 +149,16 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryGreen,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                   child: const Text(
                     "MULAI PROSES DETEKSI",
-                    style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
               ),
@@ -178,86 +186,6 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
         shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
         elevation: 2,
-      ),
-    );
-  }
-}
-
-/// HALAMAN HASIL 
-class HasilScreen extends StatefulWidget {
-  const HasilScreen({super.key, required this.imageFile});
-  final File imageFile;
-
-  @override
-  State<HasilScreen> createState() => _HasilScreenState();
-}
-
-class _HasilScreenState extends State<HasilScreen> {
-  final repo = RiwayatRepository();
-  final uuid = const Uuid();
-  final tflite = TfliteService();
-  bool _saved = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _saveHistoryOnce();
-  }
-
-  Future<void> _saveHistoryOnce() async {
-    if (_saved) return;
-    _saved = true;
-
-    try {
-      final result = await tflite.predictImage(widget.imageFile);
-
-      final label = result.label;
-      final confidence = result.confidence;
-
-      final description = "Deskripsi sementara untuk $label";
-
-      final record = RiwayatDeteksi(
-        localId: uuid.v4(),
-        timestamp: DateTime.now(),
-        gambar: widget.imageFile.path,
-        label: label,
-        confidence: confidence,
-        description: description,
-        syncState: 'local_only',
-      );
-
-      await repo.simpan(record);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Riwayat tersimpan")),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal simpan riwayat: $e")),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Hasil Deteksi")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Image.file(widget.imageFile, fit: BoxFit.cover),
-            ),
-            const SizedBox(height: 16),
-            const Text("Hasil: (nanti output TFLite ditaruh di sini)"),
-          ],
-        ),
       ),
     );
   }
