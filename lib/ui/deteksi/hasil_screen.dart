@@ -87,8 +87,8 @@ class _HasilScreenState extends State<HasilScreen> {
         gambar: widget.imageFile.path,
         label: _namaTampil,
         confidence: _confidence,
-        description:
-            'Gejala:\n• ${_gejalaList.join('\n• ')}\n\nPengendalian:\n• ${_pengendalianList.join('\n• ')}',
+        gejala: _gejalaList.join('\n• '),
+        pengendalian: _pengendalianList.join('\n• '),
         syncState: 'local_only',
       );
 
@@ -219,10 +219,13 @@ class _HasilScreenState extends State<HasilScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 20,
+      ),
       decoration: BoxDecoration(
-        color: cardGreen.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(18),
+        color: cardGreen.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,27 +238,34 @@ class _HasilScreenState extends State<HasilScreen> {
               color: primaryGreen,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           ...items.map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '• ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: primaryGreen,
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Text(
+                      '•',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: primaryGreen,
+                        height: 1.6,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      item,
+                      item.trim(),
+                      textAlign: TextAlign.justify,
                       style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.5,
+                        fontSize: 14.5,
+                        height: 1.7,
+                        fontWeight: FontWeight.w500,
                         color: primaryGreen,
                       ),
                     ),

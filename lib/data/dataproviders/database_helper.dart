@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
     );
   }
@@ -32,7 +32,8 @@ class DatabaseHelper {
         gambar TEXT NOT NULL,
         label TEXT NOT NULL,
         confidence REAL NOT NULL,
-        description TEXT,
+        gejala TEXT NOT NULL,
+        pengendalian TEXT NOT NULL,
         sync_state TEXT NOT NULL DEFAULT 'local_only',
         storage_path TEXT
       )

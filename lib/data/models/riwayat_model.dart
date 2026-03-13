@@ -1,14 +1,13 @@
 class RiwayatDeteksi {
-  final String localId; // UUID, kunci global (penting untuk sync)
+  final String localId;
   final DateTime timestamp;
-  final String gambar; // local image path
+  final String gambar;
   final String label;
   final double confidence;
-  final String description;
-
-  // untuk nanti sync (v2)
-  final String syncState; // local_only | pending_upload | synced | pending_delete
-  final String? storagePath; // path di Firebase Storage nanti
+  final String gejala;
+  final String pengendalian;
+  final String syncState;
+  final String? storagePath;
 
   RiwayatDeteksi({
     required this.localId,
@@ -16,7 +15,8 @@ class RiwayatDeteksi {
     required this.gambar,
     required this.label,
     required this.confidence,
-    required this.description,
+    required this.gejala,
+    required this.pengendalian,
     this.syncState = 'local_only',
     this.storagePath,
   });
@@ -28,7 +28,8 @@ class RiwayatDeteksi {
       gambar: map['gambar'] as String,
       label: map['label'] as String,
       confidence: (map['confidence'] as num).toDouble(),
-      description: (map['description'] ?? '') as String,
+      gejala: (map['gejala'] ?? '') as String,
+      pengendalian: (map['pengendalian'] ?? '') as String,
       syncState: (map['sync_state'] ?? 'local_only') as String,
       storagePath: map['storage_path'] as String?,
     );
@@ -41,7 +42,8 @@ class RiwayatDeteksi {
       'gambar': gambar,
       'label': label,
       'confidence': confidence,
-      'description': description,
+      'gejala': gejala,
+      'pengendalian': pengendalian,
       'sync_state': syncState,
       'storage_path': storagePath,
     };
