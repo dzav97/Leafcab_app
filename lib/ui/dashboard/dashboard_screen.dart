@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../artikel/artikel_screen.dart';
 import '../deteksi/deteksi_screen.dart';
 import '../riwayat/riwayat_screen.dart'; 
 
@@ -20,7 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   late final List<Widget> _pages = [
     const _HomeContent(), // 0 = Home (isi dashboard kamu)
-    const Center(child: Text("Halaman Artikel")), // 1
+    const ArtikelScreen(), // 1
     const DeteksiScreen(), // 2 
     const RiwayatScreen(), // 3
     const Center(child: Text("Halaman Tentang")), // 4

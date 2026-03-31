@@ -44,7 +44,7 @@ class _HasilScreenState extends State<HasilScreen> {
   Future<void> _runDetection() async {
     try {
       final result = await tflite.predictImage(widget.imageFile);
-      final rawLabel = result.label.toLowerCase().trim();
+      final rawLabel = result.label.trim();
 
       final info = penyakitCabaiMap[rawLabel];
 

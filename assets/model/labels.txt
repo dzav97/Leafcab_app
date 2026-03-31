@@ -1,6 +1,7 @@
-bakteri
-geminivirus
-kutu
-mosaik
-sehat
-serkospora
+Bercak Bakteri
+Bercak Serkospora
+Daun Sehat
+Kutu Kebul
+Mosaik
+Non Daun
+Virus Gemini

@@ -20,12 +20,10 @@ class TfliteResult {
 class TfliteService {
   Interpreter? _interpreter;
   List<String> _labels = [];
-
-  double _threshold = 0.8;
   int _inputSize = 224;
 
   Future<void> load() async {
-     _interpreter ??= await Interpreter.fromAsset('assets/model/model.tflite');
+    _interpreter ??= await Interpreter.fromAsset('assets/model/model.tflite');
 
     final labelData = await rootBundle.loadString('assets/model/labels.txt');
     _labels = labelData
@@ -37,7 +35,6 @@ class TfliteService {
     final configStr = await rootBundle.loadString('assets/model/config.json');
     final config = json.decode(configStr);
 
-    _threshold = (config['threshold'] ?? 0.8).toDouble();
     _inputSize = config['input_size'] ?? 224;
   }
 
@@ -70,8 +67,7 @@ class TfliteService {
     final confidence = scores.reduce(math.max);
     final predictedIndex = scores.indexOf(confidence);
 
-    final label =
-        confidence >= _threshold ? _labels[predictedIndex] : 'Tidak yakin';
+    final label = _labels[predictedIndex];
 
     return TfliteResult(
       label: label,

@@ -11,7 +11,7 @@ class PenyakitInfo {
 }
 
 const Map<String, PenyakitInfo> penyakitCabaiMap = {
-  'bakteri': PenyakitInfo(
+  'Bercak Bakteri': PenyakitInfo(
     namaTampil: 'Bercak Bakteri (Bacterial Leaf Spot)',
     gejala: [
       'Muncul bercak kecil pada daun yang kemudian menjadi coklat atau kehitaman.',
@@ -25,7 +25,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Jika diperlukan dapat menggunakan bakterisida sesuai anjuran.',
     ],
   ),
-  'serkospora': PenyakitInfo(
+  'Bercak Serkospora': PenyakitInfo(
     namaTampil: 'Bercak Serkospora (Cercospora Leaf Spot)',
     gejala: [
       'Muncul bercak bulat coklat pada daun dengan pusat bercak berwarna pucat atau putih.',
@@ -40,7 +40,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Penggunaan fungisida jika serangan berat.',
     ],
   ),
-  'kutu': PenyakitInfo(
+  'Kutu Kebul': PenyakitInfo(
     namaTampil: 'Kutu Kebul (Whitefly)',
     gejala: [
       'Daun mengalami bercak nekrotik akibat hisapan serangga.',
@@ -56,7 +56,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Insektisida selektif jika populasi sangat tinggi.',
     ],
   ),
-  'mosaik': PenyakitInfo(
+  'Mosaik': PenyakitInfo(
     namaTampil: 'Mosaik (Leaf Curl Virus)',
     gejala: [
       'Daun mengalami perubahan warna menjadi mosaik atau belang.',
@@ -71,7 +71,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Mengurangi populasi gulma yang menjadi inang virus.',
     ],
   ),
-  'geminivirus': PenyakitInfo(
+  'Virus Gemini': PenyakitInfo(
     namaTampil: 'Geminivirus (Yellow Leaf Curl)',
     gejala: [
       'Daun muda mengalami vein clearing lalu menguning.',
@@ -87,7 +87,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Menanam tanaman pembatas seperti jagung atau tagetes.',
     ],
   ),
-  'sehat': PenyakitInfo(
+  'Daun Sehat': PenyakitInfo(
     namaTampil: 'Daun Sehat (Healthy)',
     gejala: [
       'Daun berwarna hijau normal.',
@@ -98,6 +98,19 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
       'Lanjutkan perawatan rutin tanaman.',
       'Jaga sanitasi lahan.',
       'Lakukan pemantauan berkala untuk deteksi dini.',
+    ],
+  ),
+  'Non Daun': PenyakitInfo(
+    namaTampil: 'Non Daun',
+    gejala: [
+      'Objek yang terdeteksi bukan daun tanaman cabai.',
+      'Tidak memiliki ciri khas struktur atau tekstur daun.',
+      'Dapat berupa latar belakang, tanah, tangan, atau objek lain.'
+    ],
+    pengendalian: [
+      'Pastikan kamera diarahkan langsung ke daun cabai.',
+      'Ambil gambar dengan fokus yang jelas pada daun.',
+      'Hindari objek lain agar tidak mengganggu proses deteksi.'
     ],
   ),
 };
