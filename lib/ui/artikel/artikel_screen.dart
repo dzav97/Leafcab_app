@@ -30,15 +30,7 @@ class ArtikelScreen extends StatelessWidget {
                     const SizedBox(height: 18),
                     _buildTopBanner(),
                     const SizedBox(height: 18),
-                    const Text(
-                      "Tips Budidaya",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: DashboardScreen.dark,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
+            
                     Expanded(
                       child: FutureBuilder<List<Artikel>>(
                         future: ArtikelRepository().ambilDaftar(),
@@ -109,18 +101,6 @@ class ArtikelScreen extends StatelessWidget {
                 Icons.menu_book_outlined,
                 color: DashboardScreen.dark,
                 size: 24,
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                "Artikel Edukasi\nPenyakit Daun Cabai",
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: DashboardScreen.dark,
-                  height: 1.2,
-                ),
               ),
             ),
           ],
@@ -202,14 +182,6 @@ class _ArtikelCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: DashboardScreen.dark,
                       height: 1.25,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _formatTanggal(artikel.tanggal),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: DashboardScreen.dark,
                     ),
                   ),
                 ],

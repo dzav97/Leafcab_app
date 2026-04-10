@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147214810396",
+    "project_id": "leafcabapp",
+    "storage_bucket": "leafcabapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147214810396:android:52ee6f54a0829adc198ed9",
+        "android_client_info": {
+          "package_name": "com.example.leafcab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlylRk4EX2OmrGHgS8EyDOakJOlgdFwqE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

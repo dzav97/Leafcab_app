@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../artikel/artikel_screen.dart';
 import '../deteksi/deteksi_screen.dart';
 import '../riwayat/riwayat_screen.dart'; 
+import '../akun/akun_screen.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -24,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const ArtikelScreen(), // 1
     const DeteksiScreen(), // 2 
     const RiwayatScreen(), // 3
-    const Center(child: Text("Halaman Tentang")), // 4
+    const AkunScreen(), // 4
   ];
 
   void _onNavTap(int index) {
