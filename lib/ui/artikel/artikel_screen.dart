@@ -13,94 +13,65 @@ class ArtikelScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: DashboardScreen.green,
       body: SafeArea(
-        child: Stack(
+        bottom: false,
+        child: Column(
           children: [
             const _HeaderTitle(),
-            Padding(
-              padding: const EdgeInsets.only(top: 78),
+            Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: DashboardScreen.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(26),
-                  ),
+                width: double.infinity,
+                color: const Color(0xFFF3F3F3),
+                child: FutureBuilder<List<Artikel>>(
+                  future: ArtikelRepository().ambilDaftar(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            'Gagal memuat artikel: ${snapshot.error}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: DashboardScreen.dark,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final artikelList = snapshot.data ?? [];
+
+                    if (artikelList.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Belum ada artikel.',
+                          style: TextStyle(
+                            color: DashboardScreen.dark,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(18, 38, 18, 120),
+                      itemCount: artikelList.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final artikel = artikelList[index];
+                        return _ArtikelCard(artikel: artikel);
+                      },
+                    );
+                  },
                 ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 18),
-                    _buildTopBanner(),
-                    const SizedBox(height: 18),
-            
-                    Expanded(
-                      child: FutureBuilder<List<Artikel>>(
-                        future: ArtikelRepository().ambilDaftar(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                'Gagal memuat artikel: ${snapshot.error}',
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          }
-
-                          final artikelList = snapshot.data ?? [];
-
-                          if (artikelList.isEmpty) {
-                            return const Center(
-                              child: Text('Belum ada artikel.'),
-                            );
-                          }
-
-                          return ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
-                            itemCount: artikelList.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final artikel = artikelList[index];
-                              return _ArtikelCard(artikel: artikel);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBanner() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        decoration: BoxDecoration(
-          color: DashboardScreen.green,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: const Row(
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.menu_book_outlined,
-                color: DashboardScreen.dark,
-                size: 24,
               ),
             ),
           ],
@@ -115,12 +86,14 @@ class _HeaderTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 24, top: 16),
-      child: Text(
+    return Container(
+      width: double.infinity,
+      color: DashboardScreen.green,
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+      child: const Text(
         "Artikel",
         style: TextStyle(
-          fontSize: 34,
+          fontSize: 24,
           fontWeight: FontWeight.w800,
           color: DashboardScreen.dark,
           height: 1.05,
@@ -148,60 +121,67 @@ class _ArtikelCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        height: 86,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           color: DashboardScreen.green,
           borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: DashboardScreen.border,
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
             Container(
-              width: 46,
-              height: 46,
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                color: const Color(0xFFEAF4E8),
+                border: Border.all(
+                  color: const Color(0xFF9DB68E),
+                  width: 1,
+                ),
               ),
-              child: const Icon(
-                Icons.eco_outlined,
-                color: DashboardScreen.dark,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    artikel.judul,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.eco,
                       color: DashboardScreen.dark,
-                      height: 1.25,
+                      size: 24,
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                artikel.judul,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF36563C),
+                  height: 1.1,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
             const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
+              Icons.chevron_right_rounded,
+              size: 42,
               color: DashboardScreen.dark,
             ),
           ],
         ),
       ),
     );
-  }
-
-  static String _formatTanggal(DateTime tanggal) {
-    return '${tanggal.day.toString().padLeft(2, '0')}-'
-        '${tanggal.month.toString().padLeft(2, '0')}-'
-        '${tanggal.year}';
   }
 }

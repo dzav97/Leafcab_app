@@ -9,32 +9,115 @@ class RiwayatRepository {
   Future<void> simpan(RiwayatDeteksi riwayat) async {
     final db = await dbHelper.database;
 
-    print("MENYIMPAN DATA KE DATABASE:");
-    print(riwayat.toMap());
+    await db.insert(
+      'riwayat_deteksi',
+      riwayat.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> upsert(RiwayatDeteksi riwayat) async {
+    final db = await dbHelper.database;
 
     await db.insert(
       'riwayat_deteksi',
       riwayat.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    print("DATA BERHASIL DISIMPAN");
   }
 
-  Future<List<RiwayatDeteksi>> ambilDaftar() async {
+  Future<List<RiwayatDeteksi>> ambilDaftar(String userId) async {
     final db = await dbHelper.database;
+
     final maps = await db.query(
       'riwayat_deteksi',
+      where: 'user_id = ? AND is_deleted = 0',
+      whereArgs: [userId],
       orderBy: 'timestamp DESC',
     );
 
     return maps.map((m) => RiwayatDeteksi.fromMap(m)).toList();
   }
 
-  Future<void> hapus(String localId) async {
+  Future<RiwayatDeteksi?> ambilByLocalId(String localId) async {
     final db = await dbHelper.database;
 
-    // ambil path file dulu
+    final maps = await db.query(
+      'riwayat_deteksi',
+      where: 'local_id = ?',
+      whereArgs: [localId],
+      limit: 1,
+    );
+
+    if (maps.isEmpty) return null;
+    return RiwayatDeteksi.fromMap(maps.first);
+  }
+
+  Future<List<RiwayatDeteksi>> ambilPerluSync(String userId) async {
+    final db = await dbHelper.database;
+
+    final maps = await db.query(
+      'riwayat_deteksi',
+      where: 'user_id = ? AND sync_state != ?',
+      whereArgs: [userId, 'synced'],
+      orderBy: 'updated_at ASC',
+    );
+
+    return maps.map((m) => RiwayatDeteksi.fromMap(m)).toList();
+  }
+
+  Future<void> tandaiSudahSync({
+    required String localId,
+    required String cloudId,
+    String? storagePath,
+  }) async {
+    final db = await dbHelper.database;
+
+    await db.update(
+      'riwayat_deteksi',
+      {
+        'cloud_id': cloudId,
+        'storage_path': storagePath,
+        'sync_state': 'synced',
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'local_id = ?',
+      whereArgs: [localId],
+    );
+  }
+
+  Future<void> hapus(RiwayatDeteksi item) async {
+    final db = await dbHelper.database;
+
+    if (item.syncState == 'local_only') {
+      final f = File(item.gambar);
+      if (await f.exists()) {
+        await f.delete();
+      }
+
+      await db.delete(
+        'riwayat_deteksi',
+        where: 'local_id = ?',
+        whereArgs: [item.localId],
+      );
+      return;
+    }
+
+    await db.update(
+      'riwayat_deteksi',
+      {
+        'is_deleted': 1,
+        'sync_state': 'pending_delete',
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'local_id = ?',
+      whereArgs: [item.localId],
+    );
+  }
+
+  Future<void> hapusPermanen(String localId) async {
+    final db = await dbHelper.database;
+
     final rows = await db.query(
       'riwayat_deteksi',
       columns: ['gambar'],
@@ -44,14 +127,15 @@ class RiwayatRepository {
     );
 
     if (rows.isNotEmpty) {
-      final path = rows.first['gambar'] as String;
-      final f = File(path);
-      if (await f.exists()) {
-        await f.delete();
+      final path = rows.first['gambar'] as String?;
+      if (path != null && path.isNotEmpty) {
+        final f = File(path);
+        if (await f.exists()) {
+          await f.delete();
+        }
       }
     }
 
-    // hapus row DB
     await db.delete(
       'riwayat_deteksi',
       where: 'local_id = ?',

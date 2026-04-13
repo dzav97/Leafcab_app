@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../../services/auth_service.dart';
 import '../dashboard/dashboard_screen.dart';
 
@@ -19,10 +20,8 @@ class _EditAkunScreenState extends State<EditAkunScreen> {
   final TextEditingController _newPasswordC = TextEditingController();
 
   bool _loading = false;
-
-  static const Color dark = Color(0xFF163225);
-  static const Color green = Color(0xFFB1D8B7);
-  static const Color white = Colors.white;
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
 
   @override
   void initState() {
@@ -33,6 +32,7 @@ class _EditAkunScreenState extends State<EditAkunScreen> {
   }
 
   Future<void> _simpan() async {
+    FocusScope.of(context).unfocus();
     setState(() => _loading = true);
 
     final pesan = await _auth.updateAkun(
@@ -71,138 +71,105 @@ class _EditAkunScreenState extends State<EditAkunScreen> {
     return Scaffold(
       backgroundColor: DashboardScreen.green,
       body: SafeArea(
-        child: Stack(
+        bottom: false,
+        child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 24, top: 16),
-              child: Text(
-                "Edit Profil",
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: dark,
-                  height: 1.05,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 78),
+            _Header(onBack: () => Navigator.pop(context)),
+            Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-                ),
-                child: Column(
-                  children: [
-                    _buildTopBanner(),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: green,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: dark.withOpacity(0.4)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 72,
-                                    height: 72,
-                                    decoration: const BoxDecoration(
-                                      color: white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 42,
-                                      color: dark,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  OutlinedButton(
-                                    onPressed: () {},
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: dark,
-                                      backgroundColor: white,
-                                      side: const BorderSide(color: dark, width: 0.7),
-                                    ),
-                                    child: const Text('Ubah Foto'),
-                                  ),
-                                ],
+                width: double.infinity,
+                color: const Color(0xFFF3F3F3),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 34, 24, 32),
+                  child: Column(
+                    children: [
+                      const _AvatarSection(),
+                      const SizedBox(height: 28),
+                      _FormCard(
+                        children: [
+                          _InputField(
+                            controller: _usernameC,
+                            label: 'Username',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          _InputField(
+                            controller: _emailC,
+                            label: 'Gmail',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          _InputField(
+                            controller: _currentPasswordC,
+                            label: 'Password saat ini',
+                            obscureText: _obscureCurrent,
+                            textInputAction: TextInputAction.next,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _obscureCurrent = !_obscureCurrent;
+                                });
+                              },
+                              icon: Icon(
+                                _obscureCurrent
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: DashboardScreen.dark,
+                                size: 20,
                               ),
                             ),
-                            const SizedBox(height: 14),
-                            _buildInputCard(
-                              controller: _usernameC,
-                              label: 'Username',
+                          ),
+                          const SizedBox(height: 16),
+                          _InputField(
+                            controller: _newPasswordC,
+                            label: 'Password baru',
+                            obscureText: _obscureNew,
+                            textInputAction: TextInputAction.done,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _obscureNew = !_obscureNew;
+                                });
+                              },
+                              icon: Icon(
+                                _obscureNew
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: DashboardScreen.dark,
+                                size: 20,
+                              ),
                             ),
-                            const SizedBox(height: 14),
-                            _buildInputCard(
-                              controller: _emailC,
-                              label: 'Email',
-                            ),
-                            const SizedBox(height: 14),
-                            _buildInputCard(
-                              controller: _currentPasswordC,
-                              label: 'Password saat ini',
-                              obscure: true,
-                            ),
-                            const SizedBox(height: 14),
-                            _buildInputCard(
-                              controller: _newPasswordC,
-                              label: 'Password baru',
-                              obscure: true,
-                            ),
-                            const SizedBox(height: 18),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: dark,
-                                      side: const BorderSide(color: dark, width: 0.8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                    ),
-                                    child: const Text('Batal'),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: _loading ? null : _simpan,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: green,
-                                      foregroundColor: dark,
-                                      elevation: 0,
-                                      side: const BorderSide(color: dark, width: 0.8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                    ),
-                                    child: _loading
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(strokeWidth: 2),
-                                          )
-                                        : const Text('Simpan'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 28),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ActionButton(
+                              text: 'Batal',
+                              textColor: DashboardScreen.dark,
+                              backgroundColor: const Color(0xFFF7F7F7),
+                              onTap: _loading
+                                  ? null
+                                  : () => Navigator.pop(context),
+                            ),
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            child: _ActionButton(
+                              text: 'Simpan',
+                              textColor: DashboardScreen.dark,
+                              backgroundColor: DashboardScreen.green,
+                              onTap: _loading ? null : _simpan,
+                              loading: _loading,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -211,49 +178,218 @@ class _EditAkunScreenState extends State<EditAkunScreen> {
       ),
     );
   }
+}
 
-  Widget _buildTopBanner() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        decoration: BoxDecoration(
-          color: green,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: const Text(
-          'Edit Profil',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: dark,
+class _Header extends StatelessWidget {
+  const _Header({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: DashboardScreen.green,
+      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            child: const Icon(
+              Icons.arrow_back,
+              size: 34,
+              color: DashboardScreen.dark,
+            ),
           ),
+          const SizedBox(width: 12),
+          const Text(
+            'Edit Profil',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: DashboardScreen.dark,
+              height: 1.05,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarSection extends StatelessWidget {
+  const _AvatarSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 104,
+          height: 104,
+          decoration: BoxDecoration(
+            color: DashboardScreen.green,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1,
+            ),
+          ),
+          child: const Icon(
+            Icons.person_outline,
+            size: 50,
+            color: DashboardScreen.dark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F7F7),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1,
+            ),
+          ),
+          child: const Text(
+            'Edit Profil',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF36563C),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FormCard extends StatelessWidget {
+  const _FormCard({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _InputField extends StatelessWidget {
+  const _InputField({
+    required this.controller,
+    required this.label,
+    this.obscureText = false,
+    this.keyboardType,
+    this.textInputAction,
+    this.suffixIcon,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final Widget? suffixIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F7),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        style: const TextStyle(
+          fontSize: 14,
+          color: DashboardScreen.dark,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            color: Color(0xFF36563C),
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          border: InputBorder.none,
+          suffixIcon: suffixIcon,
         ),
       ),
     );
   }
+}
 
-  Widget _buildInputCard({
-    required TextEditingController controller,
-    required String label,
-    bool obscure = false,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        color: green,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: dark.withOpacity(0.35)),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        decoration: InputDecoration(
-          labelText: label,
-          border: InputBorder.none,
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.text,
+    required this.textColor,
+    required this.backgroundColor,
+    required this.onTap,
+    this.loading = false,
+  });
+
+  final String text;
+  final Color textColor;
+  final Color backgroundColor;
+  final VoidCallback? onTap;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 36,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: DashboardScreen.border,
+            width: 1,
+          ),
         ),
+        child: loading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(
+                text,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+              ),
       ),
     );
   }

@@ -1,16 +1,18 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/penyakit_info.dart';
-import '../../repository/riwayat_repository.dart';
 import '../../data/models/riwayat_model.dart';
+import '../../repository/riwayat_repository.dart';
 import '../../services/tflite_service.dart';
+import '../dashboard/dashboard_screen.dart';
 
 class HasilScreen extends StatefulWidget {
   const HasilScreen({super.key, required this.imageFile});
+
   final File imageFile;
 
   @override
@@ -31,10 +33,6 @@ class _HasilScreenState extends State<HasilScreen> {
   List<String> _gejalaList = [];
   List<String> _pengendalianList = [];
 
-  static const Color primaryGreen = Color(0xFF163225);
-  static const Color cardGreen = Color(0xFFA5D6A7);
-  static const Color bgGreen = Color(0xFFCDE4C5);
-
   @override
   void initState() {
     super.initState();
@@ -48,6 +46,7 @@ class _HasilScreenState extends State<HasilScreen> {
 
       final info = penyakitCabaiMap[rawLabel];
 
+      if (!mounted) return;
       setState(() {
         _rawLabel = rawLabel;
         _namaTampil = info?.namaTampil ?? rawLabel;
@@ -58,38 +57,58 @@ class _HasilScreenState extends State<HasilScreen> {
         _loading = false;
       });
 
-      await _saveHistoryOnce(result.scores);
+      await _saveHistoryOnce();
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _loading = false;
         _namaTampil = 'Deteksi Gagal';
         _gejalaList = ['Terjadi kesalahan saat membaca model atau gambar.'];
         _pengendalianList = [
-          'Periksa model.tflite, labels.txt, config.json, dan preprocessing.'
+          'Periksa model.tflite, labels.txt, config.json, dan preprocessing.',
         ];
       });
 
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal deteksi: $e')),
       );
     }
   }
 
-  Future<void> _saveHistoryOnce(List<double> scores) async {
+  Future<void> _saveHistoryOnce() async {
     if (_saved) return;
     _saved = true;
 
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User belum login. Riwayat tidak dapat disimpan.'),
+          ),
+        );
+        return;
+      }
+
+      final now = DateTime.now();
+
       final record = RiwayatDeteksi(
         localId: uuid.v4(),
-        timestamp: DateTime.now(),
+        userId: user.uid,
+        cloudId: null,
+        timestamp: now,
+        updatedAt: now,
         gambar: widget.imageFile.path,
         label: _namaTampil,
         confidence: _confidence,
-        gejala: _gejalaList.join('\n• '),
-        pengendalian: _pengendalianList.join('\n• '),
+        gejala: _gejalaList.map((e) => '• $e').join('\n'),
+        pengendalian: _pengendalianList.map((e) => '• $e').join('\n'),
         syncState: 'local_only',
+        isDeleted: 0,
+        storagePath: null,
       );
 
       await repo.simpan(record);
@@ -98,13 +117,6 @@ class _HasilScreenState extends State<HasilScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Riwayat tersimpan")),
       );
-
-      debugPrint(jsonEncode({
-        'raw_label': _rawLabel,
-        'display_label': _namaTampil,
-        'confidence': _confidence,
-        'scores': scores,
-      }));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,155 +134,232 @@ class _HasilScreenState extends State<HasilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgGreen,
-      appBar: AppBar(
-        title: const Text(
-          "Hasil Deteksi",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: primaryGreen,
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+      backgroundColor: DashboardScreen.green,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _Header(onBack: () => Navigator.pop(context)),
+            Expanded(
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 230,
-                      decoration: BoxDecoration(
-                        color: cardGreen.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: Image.file(
-                          widget.imageFile,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Center(
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: 64,
-                              color: primaryGreen,
+                color: const Color(0xFFF3F3F3),
+                child: _loading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 22, 24, 28),
+                        child: Column(
+                          children: [
+                            _ImageCard(imageFile: widget.imageFile),
+                            const SizedBox(height: 16),
+                            _ResultBadge(label: _namaTampil),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Confidence: ${(_confidence * 100).toStringAsFixed(2)}%',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: DashboardScreen.softText,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 22),
+                            _InfoCard(
+                              gejalaList: _gejalaList,
+                              pengendalianList: _pengendalianList,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: cardGreen,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        _namaTampil,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: primaryGreen,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Confidence: ${(_confidence * 100).toStringAsFixed(2)}%',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: primaryGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildBulletCard(
-                      title: 'Ciri-Ciri Gejala:',
-                      items: _gejalaList,
-                    ),
-                    const SizedBox(height: 14),
-                    _buildBulletCard(
-                      title: 'Pencegahan Awal:',
-                      items: _pengendalianList,
-                    ),
-                  ],
-                ),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
+}
 
-  Widget _buildBulletCard({
-    required String title,
-    required List<String> items,
-  }) {
+class _Header extends StatelessWidget {
+  const _Header({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 20,
+      color: DashboardScreen.green,
+      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            child: const Icon(
+              Icons.arrow_back,
+              size: 34,
+              color: DashboardScreen.dark,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Text(
+            "Hasil Deteksi",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: DashboardScreen.dark,
+              height: 1.05,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _ImageCard extends StatelessWidget {
+  const _ImageCard({required this.imageFile});
+
+  final File imageFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 270,
+      height: 300,
       decoration: BoxDecoration(
-        color: cardGreen.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(20),
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Image.file(
+          imageFile,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(
+              Icons.image_outlined,
+              size: 70,
+              color: DashboardScreen.dark,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ResultBadge extends StatelessWidget {
+  const _ResultBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 175, maxWidth: 230),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w800,
+          color: Colors.black,
+          height: 1.15,
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    required this.gejalaList,
+    required this.pengendalianList,
+  });
+
+  final List<String> gejalaList;
+  final List<String> pengendalianList;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 320),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: primaryGreen,
+          const Text(
+            'Ciri-Ciri Gejala:',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF36563C),
             ),
           ),
-          const SizedBox(height: 14),
-          ...items.map(
+          const SizedBox(height: 12),
+          ...gejalaList.map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Text(
-                      '•',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: primaryGreen,
-                        height: 1.6,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      item.trim(),
-                      textAlign: TextAlign.justify,
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        height: 1.7,
-                        fontWeight: FontWeight.w500,
-                        color: primaryGreen,
-                      ),
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                '• ${item.trim()}',
+                textAlign: TextAlign.justify,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.7,
+                  color: Color(0xFF36563C),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 26),
+          const Text(
+            'Pencegahan Awal:',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF36563C),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...pengendalianList.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                '• ${item.trim()}',
+                textAlign: TextAlign.justify,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.7,
+                  color: Color(0xFF36563C),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),

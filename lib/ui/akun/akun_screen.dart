@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'edit_akun_screen.dart';
 
 class AkunScreen extends StatefulWidget {
@@ -13,10 +15,6 @@ class AkunScreen extends StatefulWidget {
 
 class _AkunScreenState extends State<AkunScreen> {
   final _auth = AuthService();
-
-  static const Color dark = Color(0xFF163225);
-  static const Color green = Color(0xFFB1D8B7);
-  static const Color white = Colors.white;
 
   Future<void> _logout() async {
     await _auth.keluar();
@@ -93,138 +91,70 @@ class _AkunScreenState extends State<AkunScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final User? user = FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
     final username = user?.displayName?.isNotEmpty == true
         ? user!.displayName!
         : 'Belum diatur';
     final email = user?.email ?? 'Belum diatur';
 
     return Scaffold(
-      backgroundColor: green,
+      backgroundColor: DashboardScreen.green,
       body: SafeArea(
-        child: Stack(
+        bottom: false,
+        child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 24, top: 16),
-              child: Text(
-                "Akun",
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: dark,
-                  height: 1.05,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 78),
+            const _Header(),
+            Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(26),
+                width: double.infinity,
+                color: const Color(0xFFF3F3F3),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 120),
+                  child: Column(
+                    children: [
+                      const _AvatarCircle(),
+                      const SizedBox(height: 22),
+                      _EditProfileButton(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EditAkunScreen(),
+                            ),
+                          );
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(height: 38),
+                      _InfoCard(
+                        username: username,
+                        email: email,
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ActionButton(
+                              text: 'Logout',
+                              textColor: Colors.black,
+                              borderColor: DashboardScreen.border,
+                              onTap: _logout,
+                            ),
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            child: _ActionButton(
+                              text: 'Hapus Akun',
+                              textColor: Colors.red,
+                              borderColor: DashboardScreen.border,
+                              onTap: _hapusAkunDialog,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    _buildTopBanner(),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 82,
-                              height: 82,
-                              decoration: BoxDecoration(
-                                color: green,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: dark.withOpacity(0.5)),
-                              ),
-                              child: const Icon(
-                                Icons.person,
-                                size: 44,
-                                color: dark,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            OutlinedButton(
-                              onPressed: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const EditAkunScreen(),
-                                  ),
-                                );
-                                setState(() {});
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: dark,
-                                side: const BorderSide(color: dark, width: 0.8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                              ),
-                              child: const Text('Edit Profil'),
-                            ),
-                            const SizedBox(height: 18),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: green,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: dark.withOpacity(0.4)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _infoRow('Username', username),
-                                  const SizedBox(height: 12),
-                                  _infoRow('Email', email),
-                                  const SizedBox(height: 12),
-                                  _infoRow('Password', '••••••••'),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: _logout,
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: dark,
-                                      side: const BorderSide(color: dark, width: 0.8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                    ),
-                                    child: const Text('Logout'),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: _hapusAkunDialog,
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                      side: const BorderSide(color: Colors.red, width: 0.8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                    ),
-                                    child: const Text('Hapus Akun'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
@@ -232,52 +162,226 @@ class _AkunScreenState extends State<AkunScreen> {
       ),
     );
   }
+}
 
-  Widget _buildTopBanner() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        decoration: BoxDecoration(
-          color: green,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: DashboardScreen.green,
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
+      child: Row(
+        children: const [
+          Expanded(
+            child: Text(
               'Akun',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: dark,
+                color: DashboardScreen.dark,
+                height: 1.05,
               ),
             ),
-            Icon(Icons.info_outline, color: dark),
-          ],
+          ),
+          Icon(
+            Icons.info_outline,
+            size: 34,
+            color: DashboardScreen.dark,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarCircle extends StatelessWidget {
+  const _AvatarCircle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 102,
+      height: 102,
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
         ),
       ),
     );
   }
+}
 
-  Widget _infoRow(String title, String value) {
+class _EditProfileButton extends StatelessWidget {
+  const _EditProfileButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        width: 120,
+        height: 30,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F7F7),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: DashboardScreen.border,
+            width: 1,
+          ),
+        ),
+        child: const Text(
+          'Edit Profil',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF36563C),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    required this.username,
+    required this.email,
+  });
+
+  final String username;
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _InfoField(
+            title: 'Username:',
+            value: username,
+          ),
+          const SizedBox(height: 18),
+          _InfoField(
+            title: 'Gmail:',
+            value: email,
+          ),
+          const SizedBox(height: 18),
+          const _InfoField(
+            title: 'Password:',
+            value: '********',
+            showLine: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoField extends StatelessWidget {
+  const _InfoField({
+    required this.title,
+    required this.value,
+    this.showLine = true,
+  });
+
+  final String title;
+  final String value;
+  final bool showLine;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$title:',
+          title,
           style: const TextStyle(
+            fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: dark,
+            color: Color(0xFF36563C),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(color: dark),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: DashboardScreen.dark,
+          ),
         ),
+        if (showLine) ...[
+          const SizedBox(height: 8),
+          Container(
+            width: 240,
+            height: 1.2,
+            color: const Color(0xFF4D6B50),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.text,
+    required this.textColor,
+    required this.borderColor,
+    required this.onTap,
+  });
+
+  final String text;
+  final Color textColor;
+  final Color borderColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 34,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F7F7),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: borderColor,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+      ),
     );
   }
 }

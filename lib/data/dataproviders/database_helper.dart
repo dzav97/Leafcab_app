@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -19,8 +19,9 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -28,15 +29,63 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE riwayat_deteksi (
         local_id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        cloud_id TEXT,
         timestamp TEXT NOT NULL,
+        updated_at TEXT,
         gambar TEXT NOT NULL,
         label TEXT NOT NULL,
         confidence REAL NOT NULL,
         gejala TEXT NOT NULL,
         pengendalian TEXT NOT NULL,
         sync_state TEXT NOT NULL DEFAULT 'local_only',
+        is_deleted INTEGER NOT NULL DEFAULT 0,
         storage_path TEXT
       )
     ''');
+
+    await db.execute(
+      'CREATE INDEX idx_riwayat_user_timestamp ON riwayat_deteksi(user_id, timestamp DESC)',
+    );
+
+    await db.execute(
+      'CREATE INDEX idx_riwayat_sync_state ON riwayat_deteksi(user_id, sync_state)',
+    );
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 3) {
+      await db.execute(
+        "ALTER TABLE riwayat_deteksi ADD COLUMN user_id TEXT NOT NULL DEFAULT ''",
+      );
+      await db.execute(
+        "ALTER TABLE riwayat_deteksi ADD COLUMN cloud_id TEXT",
+      );
+      await db.execute(
+        "ALTER TABLE riwayat_deteksi ADD COLUMN updated_at TEXT",
+      );
+      await db.execute(
+        "ALTER TABLE riwayat_deteksi ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0",
+      );
+
+      await db.execute("""
+        UPDATE riwayat_deteksi
+        SET updated_at = timestamp
+        WHERE updated_at IS NULL
+      """);
+
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_riwayat_user_timestamp ON riwayat_deteksi(user_id, timestamp DESC)',
+      );
+
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_riwayat_sync_state ON riwayat_deteksi(user_id, sync_state)',
+      );
+    }
+  }
+
+  Future<void> close() async {
+    final db = await instance.database;
+    await db.close();
   }
 }
