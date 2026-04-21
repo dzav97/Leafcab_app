@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'ui/dashboard/dashboard_screen.dart';
 import 'ui/auth/login_screen.dart';
+import 'ui/dashboard/dashboard_screen.dart';
+import 'ui/splash/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -24,7 +23,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFCDE4C5),
       ),
-      home: const AuthGate(),
+      home: const SplashScreen(),
     );
   }
 }

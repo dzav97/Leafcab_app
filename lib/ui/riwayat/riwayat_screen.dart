@@ -244,7 +244,7 @@ class _RiwayatCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Container(
-        height: 86,
+        height: 96,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: DashboardScreen.green,
@@ -296,6 +296,8 @@ class _RiwayatInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final confidencePercent = (item.confidence * 100).clamp(0, 100);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +313,19 @@ class _RiwayatInfo extends StatelessWidget {
             height: 1.1,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
+        Text(
+          'Akurasi: ${confidencePercent.toStringAsFixed(1)}%',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF4E7A56),
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 5),
         Text(
           _formatTanggal(item.timestamp),
           maxLines: 1,

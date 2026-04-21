@@ -21,12 +21,13 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
     try {
       final picked = await _picker.pickImage(
         source: source,
-        imageQuality: 70,
-        maxWidth: 1280,
-        maxHeight: 1280,
+        imageQuality: 85,
+        maxWidth: 1600,
+        maxHeight: 1600,
       );
 
       if (picked == null) return;
+      if (!mounted) return;
 
       final croppedFile = await Navigator.push<File?>(
         context,
@@ -219,9 +220,9 @@ class _CameraPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children: [
         Icon(
           Icons.camera_alt_outlined,
           size: 120,

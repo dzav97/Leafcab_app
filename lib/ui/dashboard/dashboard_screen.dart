@@ -79,7 +79,7 @@ class _HomeContent extends StatelessWidget {
       color: DashboardScreen.green,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
       child: const Text(
-        "Dashboard",
+        "Beranda",
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w800,
@@ -393,10 +393,7 @@ class _MenuGrid extends StatelessWidget {
   }
 }
 
-/// =======================
 /// SMALL HELPERS
-/// =======================
-
 class _Arrow extends StatelessWidget {
   const _Arrow();
 
@@ -586,9 +583,7 @@ class _Step extends StatelessWidget {
   }
 }
 
-/// =======================
 /// BOTTOM NAV
-/// =======================
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
 
@@ -616,11 +611,11 @@ class _BottomNav extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _navIcon(Icons.home_outlined, 0),
-                _navIcon(Icons.article_outlined, 1),
+                _navItem(Icons.home_outlined, "Beranda", 0),
+                _navItem(Icons.article_outlined, "Artikel", 1),
                 const SizedBox(width: 58),
-                _navIcon(Icons.history, 3),
-                _navIcon(Icons.account_circle_outlined, 4),
+                _navItem(Icons.history, "Riwayat", 3),
+                _navItem(Icons.account_circle_outlined, "Akun", 4),
               ],
             ),
           ),
@@ -631,31 +626,47 @@ class _BottomNav extends StatelessWidget {
             child: Center(
               child: GestureDetector(
                 onTap: () => onTap(2),
-                child: Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF6F3F3),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFE6E0E0),
-                      width: 3,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                        color: Colors.black12,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F3F3),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFE6E0E0),
+                          width: 3,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                            color: Colors.black12,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.camera_alt_outlined,
-                    size: 32,
-                    color: currentIndex == 2
-                        ? DashboardScreen.accentGreen
-                        : DashboardScreen.dark,
-                  ),
+                      child: Icon(
+                        Icons.camera_alt_outlined,
+                        size: 32,
+                        color: currentIndex == 2
+                            ? DashboardScreen.accentGreen
+                            : DashboardScreen.dark,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "Deteksi",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: currentIndex == 2
+                            ? DashboardScreen.accentGreen
+                            : DashboardScreen.dark,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -665,16 +676,33 @@ class _BottomNav extends StatelessWidget {
     );
   }
 
-  Widget _navIcon(IconData icon, int index) {
+  Widget _navItem(IconData icon, String label, int index) {
     final active = currentIndex == index;
+
     return GestureDetector(
       onTap: () => onTap(index),
       child: Padding(
         padding: const EdgeInsets.only(top: 8),
-        child: Icon(
-          icon,
-          size: 34,
-          color: active ? DashboardScreen.accentGreen : DashboardScreen.dark,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: active ? DashboardScreen.accentGreen : DashboardScreen.dark,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: active
+                    ? DashboardScreen.accentGreen
+                    : DashboardScreen.dark,
+              ),
+            ),
+          ],
         ),
       ),
     );

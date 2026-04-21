@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -17,6 +19,8 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);
 
+    print('DB PATH: $path');
+
     return openDatabase(
       path,
       version: 3,
@@ -26,6 +30,8 @@ class DatabaseHelper {
   }
 
   Future<void> _createDB(Database db, int version) async {
+    print('onCreate jalan');
+
     await db.execute('''
       CREATE TABLE riwayat_deteksi (
         local_id TEXT PRIMARY KEY,
@@ -54,6 +60,8 @@ class DatabaseHelper {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    print('Upgrade DB dari v$oldVersion ke v$newVersion');
+
     if (oldVersion < 3) {
       await db.execute(
         "ALTER TABLE riwayat_deteksi ADD COLUMN user_id TEXT NOT NULL DEFAULT ''",
@@ -82,10 +90,5 @@ class DatabaseHelper {
         'CREATE INDEX IF NOT EXISTS idx_riwayat_sync_state ON riwayat_deteksi(user_id, sync_state)',
       );
     }
-  }
-
-  Future<void> close() async {
-    final db = await instance.database;
-    await db.close();
   }
 }
