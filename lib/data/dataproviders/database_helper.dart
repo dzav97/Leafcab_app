@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -44,7 +44,8 @@ class DatabaseHelper {
         pengendalian TEXT NOT NULL,
         sync_state TEXT NOT NULL DEFAULT 'local_only',
         is_deleted INTEGER NOT NULL DEFAULT 0,
-        storage_path TEXT
+        storage_path TEXT,
+        image_base64 TEXT
       )
     ''');
 
@@ -61,17 +62,34 @@ class DatabaseHelper {
     print('Upgrade DB dari v$oldVersion ke v$newVersion');
 
     if (oldVersion < 3) {
-      await db.execute(
-        "ALTER TABLE riwayat_deteksi ADD COLUMN user_id TEXT NOT NULL DEFAULT ''",
+      await _addColumnIfNotExists(
+        db,
+        tableName: 'riwayat_deteksi',
+        columnName: 'user_id',
+        alterSql:
+            "ALTER TABLE riwayat_deteksi ADD COLUMN user_id TEXT NOT NULL DEFAULT ''",
       );
-      await db.execute(
-        "ALTER TABLE riwayat_deteksi ADD COLUMN cloud_id TEXT",
+
+      await _addColumnIfNotExists(
+        db,
+        tableName: 'riwayat_deteksi',
+        columnName: 'cloud_id',
+        alterSql: "ALTER TABLE riwayat_deteksi ADD COLUMN cloud_id TEXT",
       );
-      await db.execute(
-        "ALTER TABLE riwayat_deteksi ADD COLUMN updated_at TEXT",
+
+      await _addColumnIfNotExists(
+        db,
+        tableName: 'riwayat_deteksi',
+        columnName: 'updated_at',
+        alterSql: "ALTER TABLE riwayat_deteksi ADD COLUMN updated_at TEXT",
       );
-      await db.execute(
-        "ALTER TABLE riwayat_deteksi ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0",
+
+      await _addColumnIfNotExists(
+        db,
+        tableName: 'riwayat_deteksi',
+        columnName: 'is_deleted',
+        alterSql:
+            "ALTER TABLE riwayat_deteksi ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0",
       );
 
       await db.execute("""
@@ -79,14 +97,38 @@ class DatabaseHelper {
         SET updated_at = timestamp
         WHERE updated_at IS NULL
       """);
+    }
 
-      await db.execute(
-        'CREATE INDEX IF NOT EXISTS idx_riwayat_user_timestamp ON riwayat_deteksi(user_id, timestamp DESC)',
+    if (oldVersion < 4) {
+      await _addColumnIfNotExists(
+        db,
+        tableName: 'riwayat_deteksi',
+        columnName: 'image_base64',
+        alterSql: "ALTER TABLE riwayat_deteksi ADD COLUMN image_base64 TEXT",
       );
+    }
 
-      await db.execute(
-        'CREATE INDEX IF NOT EXISTS idx_riwayat_sync_state ON riwayat_deteksi(user_id, sync_state)',
-      );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_riwayat_user_timestamp ON riwayat_deteksi(user_id, timestamp DESC)',
+    );
+
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_riwayat_sync_state ON riwayat_deteksi(user_id, sync_state)',
+    );
+  }
+
+  Future<void> _addColumnIfNotExists(
+    Database db, {
+    required String tableName,
+    required String columnName,
+    required String alterSql,
+  }) async {
+    final columns = await db.rawQuery('PRAGMA table_info($tableName)');
+
+    final exists = columns.any((column) => column['name'] == columnName);
+
+    if (!exists) {
+      await db.execute(alterSql);
     }
   }
 }

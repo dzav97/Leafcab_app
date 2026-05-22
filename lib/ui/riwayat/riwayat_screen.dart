@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -33,8 +36,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     final userId = _userId;
     if (userId == null) return [];
 
-    await syncService.restoreRiwayatDariCloud();
     await syncService.syncRiwayat();
+    await syncService.restoreRiwayatDariCloud();
 
     return repo.ambilDaftar(userId);
   }
@@ -84,22 +87,46 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   }
 
   Widget _buildThumbnail(RiwayatDeteksi item) {
-    if (item.gambar.isEmpty) {
-      return const Icon(
-        Icons.image_outlined,
-        color: DashboardScreen.dark,
-        size: 28,
-      );
+    if (item.gambar.isNotEmpty) {
+      final file = File(item.gambar);
+
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildBase64OrIcon(item),
+        );
+      }
     }
 
-    return Image.file(
-      File(item.gambar),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => const Icon(
-        Icons.image_outlined,
-        color: DashboardScreen.dark,
-        size: 28,
-      ),
+    return _buildBase64OrIcon(item);
+  }
+
+  Widget _buildBase64OrIcon(RiwayatDeteksi item) {
+    final imageBase64 = item.imageBase64;
+
+    if (imageBase64 != null && imageBase64.isNotEmpty) {
+      try {
+        final Uint8List bytes = base64Decode(imageBase64);
+
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildImageIcon(),
+        );
+      } catch (_) {
+        return _buildImageIcon();
+      }
+    }
+
+    return _buildImageIcon();
+  }
+
+  Widget _buildImageIcon() {
+    return const Icon(
+      Icons.image_outlined,
+      color: DashboardScreen.dark,
+      size: 28,
     );
   }
 
@@ -182,7 +209,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => DetailRiwayatScreen(item: item),
+                                  builder: (_) =>
+                                      DetailRiwayatScreen(item: item),
                                 ),
                               );
                               await _reload();
@@ -253,6 +281,13 @@ class _RiwayatCard extends StatelessWidget {
             color: DashboardScreen.border,
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -275,11 +310,12 @@ class _RiwayatCard extends StatelessWidget {
             const SizedBox(width: 10),
             IconButton(
               onPressed: onDelete,
+              tooltip: 'Hapus riwayat',
               splashRadius: 20,
               icon: const Icon(
-                Icons.delete_outline_rounded,
+                Icons.delete_rounded,
                 size: 28,
-                color: DashboardScreen.dark,
+                color: Colors.red,
               ),
             ),
           ],
@@ -315,7 +351,7 @@ class _RiwayatInfo extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Text(
-          'Akurasi: ${confidencePercent.toStringAsFixed(1)}%',
+          'Confidence: ${confidencePercent.toStringAsFixed(1)}%',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(

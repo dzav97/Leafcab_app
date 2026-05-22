@@ -72,7 +72,7 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
     ],
   ),
   'Virus Gemini': PenyakitInfo(
-    namaTampil: 'Geminivirus (Yellow Leaf Curl)',
+    namaTampil: 'Virus Gemini (Yellow Leaf Curl)',
     gejala: [
       'Daun muda mengalami vein clearing lalu menguning.',
       'Tulang daun menebal dan daun menggulung ke atas.',

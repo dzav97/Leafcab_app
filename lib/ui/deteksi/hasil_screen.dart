@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/penyakit_info.dart';
 import '../../data/models/riwayat_model.dart';
 import '../../repository/riwayat_repository.dart';
+import '../../services/riwayat_sync_service.dart';
 import '../../services/tflite_service.dart';
 import '../dashboard/dashboard_screen.dart';
 
@@ -21,6 +26,7 @@ class HasilScreen extends StatefulWidget {
 
 class _HasilScreenState extends State<HasilScreen> {
   final repo = RiwayatRepository();
+  final syncService = RiwayatSyncService();
   final uuid = const Uuid();
   final tflite = TfliteService();
 
@@ -94,14 +100,24 @@ class _HasilScreenState extends State<HasilScreen> {
       }
 
       final now = DateTime.now();
+      final localId = uuid.v4();
+
+      final savedImagePath = await _copyImageToPermanentStorage(
+        sourceImage: widget.imageFile,
+        localId: localId,
+      );
+
+      final imageBase64 = await _imageToCompressedBase64(
+        file: File(savedImagePath),
+      );
 
       final record = RiwayatDeteksi(
-        localId: uuid.v4(),
+        localId: localId,
         userId: user.uid,
         cloudId: null,
         timestamp: now,
         updatedAt: now,
-        gambar: widget.imageFile.path,
+        gambar: savedImagePath,
         label: _namaTampil,
         confidence: _confidence,
         gejala: _gejalaList.map((e) => '• $e').join('\n'),
@@ -109,9 +125,13 @@ class _HasilScreenState extends State<HasilScreen> {
         syncState: 'local_only',
         isDeleted: 0,
         storagePath: null,
+        imageBase64: imageBase64,
       );
 
       await repo.simpan(record);
+
+      // Langsung sync ke Firestore supaya device lain bisa ambil image_base64.
+      await syncService.syncRiwayat();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,6 +143,49 @@ class _HasilScreenState extends State<HasilScreen> {
         SnackBar(content: Text("Gagal simpan riwayat: $e")),
       );
     }
+  }
+
+  Future<String> _copyImageToPermanentStorage({
+    required File sourceImage,
+    required String localId,
+  }) async {
+    final appDir = await getApplicationDocumentsDirectory();
+
+    final extension = p.extension(sourceImage.path).isNotEmpty
+        ? p.extension(sourceImage.path)
+        : '.jpg';
+
+    final savedImagePath = p.join(
+      appDir.path,
+      'riwayat_$localId$extension',
+    );
+
+    final savedFile = await sourceImage.copy(savedImagePath);
+
+    return savedFile.path;
+  }
+
+  Future<String?> _imageToCompressedBase64({
+    required File file,
+  }) async {
+    final bytes = await file.readAsBytes();
+    final decodedImage = img.decodeImage(bytes);
+
+    if (decodedImage == null) {
+      return null;
+    }
+
+    final resizedImage = img.copyResize(
+      decodedImage,
+      width: 300,
+    );
+
+    final jpgBytes = img.encodeJpg(
+      resizedImage,
+      quality: 55,
+    );
+
+    return base64Encode(jpgBytes);
   }
 
   @override

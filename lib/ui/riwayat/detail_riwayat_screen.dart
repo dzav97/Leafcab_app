@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../data/models/riwayat_model.dart';
@@ -29,7 +32,7 @@ class DetailRiwayatScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(24, 34, 24, 32),
                   child: Column(
                     children: [
-                      _ImagePreview(imagePath: item.gambar),
+                      _ImagePreview(item: item),
                       const SizedBox(height: 28),
                       _ResultBadge(label: item.label),
                       const SizedBox(height: 24),
@@ -88,9 +91,9 @@ class _Header extends StatelessWidget {
 }
 
 class _ImagePreview extends StatelessWidget {
-  const _ImagePreview({required this.imagePath});
+  const _ImagePreview({required this.item});
 
-  final String imagePath;
+  final RiwayatDeteksi item;
 
   @override
   Widget build(BuildContext context) {
@@ -107,25 +110,53 @@ class _ImagePreview extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
-        child: imagePath.isEmpty
-            ? const Center(
-                child: Icon(
-                  Icons.image_outlined,
-                  size: 60,
-                  color: DashboardScreen.dark,
-                ),
-              )
-            : Image.file(
-                File(imagePath),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: 60,
-                    color: DashboardScreen.dark,
-                  ),
-                ),
-              ),
+        child: _buildImage(),
+      ),
+    );
+  }
+
+  Widget _buildImage() {
+    if (item.gambar.isNotEmpty) {
+      final file = File(item.gambar);
+
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildBase64OrIcon(),
+        );
+      }
+    }
+
+    return _buildBase64OrIcon();
+  }
+
+  Widget _buildBase64OrIcon() {
+    final imageBase64 = item.imageBase64;
+
+    if (imageBase64 != null && imageBase64.isNotEmpty) {
+      try {
+        final Uint8List bytes = base64Decode(imageBase64);
+
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildImageIcon(),
+        );
+      } catch (_) {
+        return _buildImageIcon();
+      }
+    }
+
+    return _buildImageIcon();
+  }
+
+  Widget _buildImageIcon() {
+    return const Center(
+      child: Icon(
+        Icons.image_outlined,
+        size: 60,
+        color: DashboardScreen.dark,
       ),
     );
   }

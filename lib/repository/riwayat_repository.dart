@@ -58,7 +58,16 @@ class RiwayatRepository {
 
     final maps = await db.query(
       'riwayat_deteksi',
-      where: 'user_id = ? AND sync_state != ?',
+      where: '''
+        user_id = ?
+        AND (
+          sync_state != ?
+          OR (
+            (storage_path IS NULL OR storage_path = '')
+            AND gambar != ''
+          )
+        )
+      ''',
       whereArgs: [userId, 'synced'],
       orderBy: 'updated_at ASC',
     );
@@ -73,14 +82,19 @@ class RiwayatRepository {
   }) async {
     final db = await dbHelper.database;
 
+    final data = <String, Object?>{
+      'cloud_id': cloudId,
+      'sync_state': 'synced',
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
+    if (storagePath != null && storagePath.isNotEmpty) {
+      data['storage_path'] = storagePath;
+    }
+
     await db.update(
       'riwayat_deteksi',
-      {
-        'cloud_id': cloudId,
-        'storage_path': storagePath,
-        'sync_state': 'synced',
-        'updated_at': DateTime.now().toIso8601String(),
-      },
+      data,
       where: 'local_id = ?',
       whereArgs: [localId],
     );

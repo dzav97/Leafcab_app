@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image/image.dart' as img;
 
 import '../data/models/riwayat_model.dart';
 import '../repository/riwayat_repository.dart';
@@ -33,6 +37,7 @@ class RiwayatSyncService {
         .collection('users')
         .doc(user.uid)
         .collection('riwayat_deteksi')
+        .where('is_deleted', isEqualTo: 0)
         .get();
 
     for (final doc in snapshot.docs) {
@@ -63,7 +68,8 @@ class RiwayatSyncService {
         pengendalian: (data['pengendalian'] ?? '') as String,
         syncState: 'synced',
         isDeleted: ((data['is_deleted'] ?? 0) as num).toInt(),
-        storagePath: data['storage_path'] as String?,
+        storagePath: null,
+        imageBase64: data['image_base64'] as String?,
       );
 
       await _repo.upsert(item);
@@ -72,6 +78,17 @@ class RiwayatSyncService {
 
   Future<void> _syncUpsert(RiwayatDeteksi item) async {
     try {
+      String? imageBase64 = item.imageBase64;
+
+      if ((imageBase64 == null || imageBase64.isEmpty) &&
+          item.gambar.isNotEmpty) {
+        final imageFile = File(item.gambar);
+
+        if (await imageFile.exists()) {
+          imageBase64 = await _imageToCompressedBase64(imageFile);
+        }
+      }
+
       final docRef = (item.cloudId != null && item.cloudId!.isNotEmpty)
           ? _firestore
               .collection('users')
@@ -88,25 +105,29 @@ class RiwayatSyncService {
         'local_id': item.localId,
         'user_id': item.userId,
         'timestamp': item.timestamp.toIso8601String(),
-        'updated_at': item.updatedAt.toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
         'label': item.label,
         'confidence': item.confidence,
         'gejala': item.gejala,
         'pengendalian': item.pengendalian,
         'sync_state': 'synced',
         'is_deleted': item.isDeleted,
-        'storage_path': item.storagePath,
+        'storage_path': null,
+        'image_base64': imageBase64,
         'created_at_server': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      await _repo.tandaiSudahSync(
-        localId: item.localId,
+      final updatedItem = item.copyWith(
         cloudId: docRef.id,
-        storagePath: item.storagePath,
+        syncState: 'synced',
+        updatedAt: DateTime.now(),
+        storagePath: null,
+        imageBase64: imageBase64,
       );
+
+      await _repo.upsert(updatedItem);
     } catch (e) {
-      // sementara dibiarkan agar app tidak crash.
-      // kalau nanti mau, bisa ditambah logging atau status sync_failed.
+      print('Gagal sync upsert riwayat: $e');
     }
   }
 
@@ -123,8 +144,28 @@ class RiwayatSyncService {
 
       await _repo.hapusPermanen(item.localId);
     } catch (e) {
-      // kalau gagal hapus di cloud, biarkan tetap pending_delete
-      // supaya bisa dicoba lagi nanti.
+      print('Gagal sync delete riwayat: $e');
     }
+  }
+
+  Future<String?> _imageToCompressedBase64(File file) async {
+    final bytes = await file.readAsBytes();
+    final decodedImage = img.decodeImage(bytes);
+
+    if (decodedImage == null) {
+      return null;
+    }
+
+    final resizedImage = img.copyResize(
+      decodedImage,
+      width: 300,
+    );
+
+    final jpgBytes = img.encodeJpg(
+      resizedImage,
+      quality: 55,
+    );
+
+    return base64Encode(jpgBytes);
   }
 }

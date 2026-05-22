@@ -12,6 +12,7 @@ class RiwayatDeteksi {
   final String syncState;
   final int isDeleted;
   final String? storagePath;
+  final String? imageBase64;
 
   RiwayatDeteksi({
     required this.localId,
@@ -27,6 +28,7 @@ class RiwayatDeteksi {
     this.syncState = 'local_only',
     this.isDeleted = 0,
     this.storagePath,
+    this.imageBase64,
   });
 
   factory RiwayatDeteksi.fromMap(Map<String, dynamic> map) {
@@ -41,14 +43,15 @@ class RiwayatDeteksi {
       updatedAt: (updatedAtRaw != null && updatedAtRaw.isNotEmpty)
           ? DateTime.parse(updatedAtRaw)
           : DateTime.parse(timestampRaw),
-      gambar: map['gambar'] as String,
-      label: map['label'] as String,
-      confidence: (map['confidence'] as num).toDouble(),
+      gambar: (map['gambar'] ?? '') as String,
+      label: (map['label'] ?? '-') as String,
+      confidence: ((map['confidence'] ?? 0) as num).toDouble(),
       gejala: (map['gejala'] ?? '') as String,
       pengendalian: (map['pengendalian'] ?? '') as String,
       syncState: (map['sync_state'] ?? 'local_only') as String,
       isDeleted: ((map['is_deleted'] ?? 0) as num).toInt(),
       storagePath: map['storage_path'] as String?,
+      imageBase64: map['image_base64'] as String?,
     );
   }
 
@@ -67,6 +70,7 @@ class RiwayatDeteksi {
       'sync_state': syncState,
       'is_deleted': isDeleted,
       'storage_path': storagePath,
+      'image_base64': imageBase64,
     };
   }
 
@@ -84,6 +88,7 @@ class RiwayatDeteksi {
     String? syncState,
     int? isDeleted,
     String? storagePath,
+    String? imageBase64,
   }) {
     return RiwayatDeteksi(
       localId: localId ?? this.localId,
@@ -99,6 +104,7 @@ class RiwayatDeteksi {
       syncState: syncState ?? this.syncState,
       isDeleted: isDeleted ?? this.isDeleted,
       storagePath: storagePath ?? this.storagePath,
+      imageBase64: imageBase64 ?? this.imageBase64,
     );
   }
 }
