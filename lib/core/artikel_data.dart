@@ -9,8 +9,7 @@ Tanaman cabai merupakan komoditas hortikultura yang sering mengalami gangguan ha
 
 Penyakit pada cabai juga tidak selalu muncul dengan bentuk yang sama. Ada penyakit yang menyebabkan bercak pada daun, ada yang menimbulkan warna kuning, ada yang membuat daun keriting, dan ada pula yang menyebabkan tanaman layu. Karena itu, pengenalan jenis penyakit sangat penting agar tindakan pengendalian yang dilakukan tidak salah.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 2,
@@ -20,8 +19,7 @@ Gejala penyakit pada daun cabai umumnya dapat dilihat secara visual. Beberapa ge
 
 Pada bercak daun Cercospora, gejala khasnya berupa bercak bulat dengan bagian tengah abu-abu atau pucat dan pinggiran berwarna coklat. Pada geminivirus, gejala umumnya berupa daun menguning, tulang daun menebal, dan daun melengkung ke atas. Pada mosaik atau leaf curl, daun menunjukkan belang hijau tua dan hijau muda serta perubahan bentuk seperti cekung, keriting, atau memanjang.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 3,
@@ -31,8 +29,7 @@ Penyakit pada cabai dapat disebabkan oleh beberapa kelompok patogen, yaitu bakte
 
 Bercak bakteri disebabkan oleh Xanthomonas campestris pv. vesicatoria, bercak serkospora disebabkan oleh Cercospora capsici, sedangkan virus kuning disebabkan oleh geminivirus. Mosaik atau leaf curl pada cabai dapat terkait dengan PVY, TEV, CMV, CVMV, atau CPSV, tergantung jenis gejalanya. Sementara itu, kutu daun dan kutu kebul sering menjadi hama penting sekaligus pembawa virus.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 4,
@@ -42,8 +39,7 @@ Penyakit pada tanaman cabai dapat menyebar melalui banyak cara. Beberapa patogen
 
 Contohnya, geminivirus ditularkan oleh kutu kebul Bemisia tabaci, sedangkan mosaik banyak berkaitan dengan kutu daun. Bercak bakteri dapat dipicu penyebarannya oleh hujan angin, sedangkan antraknosa dapat menyebar melalui percikan air hujan maupun alat semprot. Karena itu, pengendalian penyakit tidak cukup hanya berfokus pada tanaman sakit, tetapi juga harus memperhatikan sumber penularannya.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 5,
@@ -53,8 +49,7 @@ Serangan penyakit pada cabai dipengaruhi oleh kondisi lingkungan dan teknik budi
 
 Pada budidaya cabai, kondisi lingkungan yang tidak terkelola dengan baik dapat meningkatkan peluang penyakit berkembang lebih cepat. Karena itu, pengaturan drainase, jarak tanam, dan sanitasi kebun sangat penting diperhatikan sejak awal.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 6,
@@ -64,8 +59,7 @@ Beberapa hama tidak hanya merusak tanaman secara langsung, tetapi juga berperan 
 
 Kutu daun dapat menyebabkan daun mengkerut, mengeriting, melingkar, dan tanaman menjadi kerdil. Selain itu, kutu daun juga menghasilkan embun madu yang memicu tumbuhnya jamur jelaga. Kutu kebul dapat menyebabkan bercak nekrotik, menghambat pertumbuhan, dan menjadi vektor geminivirus. Thrips juga dapat merusak daun muda dan berperan sebagai vektor penyakit virus mosaik dan keriting.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 7,
@@ -75,8 +69,7 @@ Pencegahan penyakit pada cabai sebaiknya dilakukan sejak awal. Langkah yang dapa
 
 Beberapa tindakan pencegahan lain yang dianjurkan adalah penggunaan mulsa, rotasi tanaman, solarisasi tanah persemaian, penggunaan pupuk kandang matang, dan perlindungan bibit dari infeksi awal virus. Pengendalian vektor juga termasuk langkah pencegahan penting, terutama pada penyakit yang berkaitan dengan virus.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 8,
@@ -86,8 +79,7 @@ Jika tanaman mulai menunjukkan gejala penyakit, penanganan awal harus segera dil
 
 Penggunaan pestisida atau fungisida sebaiknya tidak langsung menjadi pilihan pertama. Pengendalian yang baik dimulai dari sanitasi, rotasi tanaman, penggunaan musuh alami, dan tindakan kultur teknis. Pestisida lebih tepat digunakan secara bijaksana ketika cara lain tidak lagi mampu menekan serangan.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
   Artikel(
     id: 9,
@@ -97,7 +89,6 @@ Deteksi dini sangat penting dalam budidaya cabai karena gejala awal sering muncu
 
 Keterlambatan mengenali gejala dapat menyebabkan penyebaran penyakit menjadi sangat luas. Karena itu, deteksi dini menjadi langkah yang sangat penting dalam pengelolaan kesehatan tanaman cabai.
 ''',
-    gambar: '',
-    tanggal: DateTime(2026, 3, 31),
+    gambar: 'assets/images/penyakitcabai.png',
   ),
 ];

@@ -2,15 +2,13 @@ class Artikel {
   final int? id;
   final String judul;
   final String isi;
-  final String gambar; // String path atau URL gambar
-  final DateTime tanggal;
+  final String gambar;
 
   Artikel({
     this.id,
     required this.judul,
     required this.isi,
     required this.gambar,
-    required this.tanggal,
   });
 
   // Mengubah Map dari SQLite menjadi Object Artikel
@@ -20,7 +18,6 @@ class Artikel {
       judul: map['judul'],
       isi: map['isi'],
       gambar: map['gambar'],
-      tanggal: DateTime.parse(map['tanggal']),
     );
   }
 
@@ -31,7 +28,6 @@ class Artikel {
       'judul': judul,
       'isi': isi,
       'gambar': gambar,
-      'tanggal': tanggal.toIso8601String(),
     };
   }
 }

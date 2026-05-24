@@ -148,7 +148,7 @@ class _ArtikelCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Image.asset(
-                    'assets/images/logo.png',
+                    artikel.gambar,
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => const Icon(
                       Icons.eco,

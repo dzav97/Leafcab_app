@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../data/models/artikel_model.dart';
 import '../../core/artikel_data.dart';
 import '../artikel/artikel_screen.dart';
@@ -56,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 /// =======================
-/// HOME CONTENT (TAB 0)
+/// HOME CONTENT
 /// =======================
 class _HomeContent extends StatelessWidget {
   const _HomeContent({required this.onNavigate});
@@ -77,11 +78,11 @@ class _HomeContent extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
       child: const Text(
-        "Beranda",
+        'Beranda',
         style: TextStyle(
-          fontSize: 22,
+          fontSize: 24,
           fontWeight: FontWeight.w800,
           color: DashboardScreen.dark,
           letterSpacing: 0.2,
@@ -96,40 +97,28 @@ class _HomeContent extends StatelessWidget {
       width: double.infinity,
       color: const Color(0xFFF3F3F3),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 130),
+        padding: const EdgeInsets.fromLTRB(18, 22, 18, 130),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _AppLogoHeader(),
             const SizedBox(height: 18),
+
             _InstructionCard(
               onStartDetection: () => onNavigate(2),
             ),
-            const SizedBox(height: 10),
-            _buildSectionTitle("Menu"),
-            _MenuGrid(
-              onArtikelTap: () => onNavigate(1),
-              onDeteksiTap: () => onNavigate(2),
-              onRiwayatTap: () => onNavigate(3),
+
+            const SizedBox(height: 24),
+
+            _SectionHeader(
+              title: 'Artikel',
+              actionText: 'Lihat semua',
+              onActionTap: () => onNavigate(1),
             ),
+
             const SizedBox(height: 12),
-            _buildSectionTitle("Artikel"),
             _buildArticleList(context),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: DashboardScreen.dark,
         ),
       ),
     );
@@ -140,162 +129,101 @@ class _HomeContent extends StatelessWidget {
 
     return Column(
       children: articles.map((artikel) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => DetailArtikelScreen(artikel: artikel),
-              ),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: DashboardScreen.green,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: DashboardScreen.border,
-                width: 1.2,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.article_outlined,
-                    size: 28,
-                    color: DashboardScreen.dark,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        artikel.judul,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: DashboardScreen.dark,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _ringkasIsi(artikel.isi),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: DashboardScreen.softText,
-                          fontStyle: FontStyle.italic,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.chevron_right,
-                  color: DashboardScreen.dark,
-                  size: 22,
-                ),
-              ],
-            ),
-          ),
-        );
+        return _ArticleCard(artikel: artikel);
       }).toList(),
     );
   }
-
-  static String _ringkasIsi(String isi) {
-    final text = isi.replaceAll('\n', ' ').trim();
-    if (text.length <= 90) return text;
-    return '${text.substring(0, 90)}...';
-  }
 }
 
-/// =======================
-/// COMPONENT WIDGETS
-/// =======================
-
+/// LOGO HEADER
 class _AppLogoHeader extends StatelessWidget {
   const _AppLogoHeader();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 92,
-          height: 92,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFFF6F6F0),
-            border: Border.all(
-              color: const Color(0xFF97AC87),
-              width: 1.2,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1.1,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            blurRadius: 8,
+            offset: Offset(0, 3),
+            color: Colors.black12,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 86,
+            height: 86,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFFF6F6F0),
+              border: Border.all(
+                color: const Color(0xFF97AC87),
+                width: 1.2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(7),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.eco,
+                    size: 42,
+                    color: DashboardScreen.dark,
+                  ),
+                ),
+              ),
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: ClipOval(
-              child: Image.asset(
-                "assets/images/logo.png",
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.eco,
-                  size: 42,
-                  color: DashboardScreen.dark,
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Leafcab',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF36563C),
+                    height: 1,
+                  ),
                 ),
-              ),
+                SizedBox(height: 8),
+                Text(
+                  'Aplikasi Deteksi Daun Cabai',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: DashboardScreen.softText,
+                    height: 1.25,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(width: 14),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Leafcab",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF36563C),
-                  height: 1,
-                ),
-              ),
-              SizedBox(height: 6),
-              Text(
-                "Aplikasi Deteksi Daun Cabai",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                  color: DashboardScreen.softText,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
+/// PANDUAN CARD
 class _InstructionCard extends StatelessWidget {
   const _InstructionCard({required this.onStartDetection});
 
@@ -305,14 +233,21 @@ class _InstructionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
       decoration: BoxDecoration(
         color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(26),
         border: Border.all(
           color: DashboardScreen.border,
           width: 1.2,
         ),
+        boxShadow: const [
+          BoxShadow(
+            blurRadius: 8,
+            offset: Offset(0, 3),
+            color: Colors.black12,
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -322,28 +257,28 @@ class _InstructionCard extends StatelessWidget {
               Expanded(
                 child: _Step(
                   type: _StepType.scan,
-                  label: "Ambil\ngambar",
+                  label: 'Ambil\ngambar',
                 ),
               ),
               _Arrow(),
               Expanded(
                 child: _Step(
                   type: _StepType.diagnose,
-                  label: "Lihat\ndiagnosis",
+                  label: 'Lihat\ndiagnosis',
                 ),
               ),
               _Arrow(),
               Expanded(
                 child: _Step(
                   type: _StepType.result,
-                  label: "Dapatkan\nhasil",
+                  label: 'Dapatkan\nhasil',
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           _PillButton(
-            text: "Mulai Deteksi",
+            text: 'Mulai Deteksi',
             onTap: onStartDetection,
           ),
         ],
@@ -352,167 +287,13 @@ class _InstructionCard extends StatelessWidget {
   }
 }
 
-class _MenuGrid extends StatelessWidget {
-  const _MenuGrid({
-    required this.onArtikelTap,
-    required this.onDeteksiTap,
-    required this.onRiwayatTap,
-  });
-
-  final VoidCallback onArtikelTap;
-  final VoidCallback onDeteksiTap;
-  final VoidCallback onRiwayatTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _Menu(
-          icon: Icons.article_outlined,
-          label: "Artikel",
-          onTap: onArtikelTap,
-        ),
-        _Menu(
-          icon: Icons.camera_alt_outlined,
-          label: "Deteksi",
-          onTap: onDeteksiTap,
-        ),
-        _Menu(
-          icon: Icons.history,
-          label: "Riwayat",
-          onTap: onRiwayatTap,
-        ),
-        const _Menu(
-          icon: Icons.info_outline,
-          label: "Tentang",
-          onTap: null,
-        ),
-      ],
-    );
-  }
-}
-
-/// SMALL HELPERS
-class _Arrow extends StatelessWidget {
-  const _Arrow();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 10),
-      child: Icon(
-        Icons.chevron_right,
-        size: 36,
-        color: DashboardScreen.dark,
-      ),
-    );
-  }
-}
-
-class _PillButton extends StatelessWidget {
-  const _PillButton({required this.text, required this.onTap});
-
-  final String text;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFF3C5E40),
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 4,
-              offset: Offset(0, 1),
-              color: Colors.black12,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const CircleAvatar(
-              radius: 11,
-              backgroundColor: Color(0xFF547657),
-              child: Icon(
-                Icons.chevron_right,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Menu extends StatelessWidget {
-  const _Menu({
-    required this.icon,
-    required this.label,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 78,
-        height: 84,
-        decoration: BoxDecoration(
-          color: DashboardScreen.green,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 34, color: DashboardScreen.dark),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-                color: DashboardScreen.softText,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 enum _StepType { scan, diagnose, result }
 
 class _Step extends StatelessWidget {
-  const _Step({required this.type, required this.label});
+  const _Step({
+    required this.type,
+    required this.label,
+  });
 
   final _StepType type;
   final String label;
@@ -527,7 +308,7 @@ class _Step extends StatelessWidget {
         children: const [
           Icon(
             Icons.center_focus_strong,
-            size: 36,
+            size: 38,
             color: DashboardScreen.dark,
           ),
           Icon(
@@ -543,7 +324,7 @@ class _Step extends StatelessWidget {
         children: const [
           Icon(
             Icons.assignment_outlined,
-            size: 38,
+            size: 40,
             color: DashboardScreen.dark,
           ),
           Positioned(
@@ -559,21 +340,30 @@ class _Step extends StatelessWidget {
     } else {
       iconWidget = const Icon(
         Icons.battery_full,
-        size: 36,
+        size: 38,
         color: DashboardScreen.dark,
       );
     }
 
     return Column(
       children: [
-        SizedBox(height: 48, child: Center(child: iconWidget)),
-        const SizedBox(height: 6),
+        Container(
+          width: 54,
+          height: 54,
+          decoration: const BoxDecoration(
+            color: Color(0xFFD7E9D8),
+            shape: BoxShape.circle,
+          ),
+          child: Center(child: iconWidget),
+        ),
+        const SizedBox(height: 8),
         Text(
           label,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 12.5,
             fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w600,
             color: DashboardScreen.softText,
             height: 1.2,
           ),
@@ -583,91 +373,387 @@ class _Step extends StatelessWidget {
   }
 }
 
-/// BOTTOM NAV
+class _Arrow extends StatelessWidget {
+  const _Arrow();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(top: 12),
+      child: Icon(
+        Icons.chevron_right_rounded,
+        size: 34,
+        color: DashboardScreen.dark,
+      ),
+    );
+  }
+}
+
+class _PillButton extends StatelessWidget {
+  const _PillButton({
+    required this.text,
+    required this.onTap,
+  });
+
+  final String text;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF3C5E40),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const CircleAvatar(
+                radius: 11,
+                backgroundColor: Color(0xFF547657),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// SECTION HEADER
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.actionText,
+    required this.onActionTap,
+  });
+
+  final String title;
+  final String actionText;
+  final VoidCallback onActionTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: DashboardScreen.dark,
+            ),
+          ),
+        ),
+        InkWell(
+          onTap: onActionTap,
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              children: const [
+                Text(
+                  'Lihat semua',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF36563C),
+                  ),
+                ),
+                SizedBox(width: 2),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: Color(0xFF36563C),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
+/// LIST ARTIKEL
+class _ArticleCard extends StatelessWidget {
+  const _ArticleCard({required this.artikel});
+
+  final Artikel artikel;
+
+  @override
+  Widget build(BuildContext context) {
+    final ringkasan = _ringkasIsi(artikel.isi);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => DetailArtikelScreen(artikel: artikel),
+            ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: DashboardScreen.green,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              _ArticleThumbnail(imagePath: artikel.gambar),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      artikel.judul,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        color: DashboardScreen.dark,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      ringkasan,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: DashboardScreen.softText,
+                        height: 1.35,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: DashboardScreen.dark,
+                size: 28,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _ringkasIsi(String isi) {
+    final text = isi.replaceAll('\n', ' ').trim();
+    if (text.length <= 95) return text;
+    return '${text.substring(0, 95)}...';
+  }
+}
+
+class _ArticleThumbnail extends StatelessWidget {
+  const _ArticleThumbnail({required this.imagePath});
+
+  final String imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 66,
+      height: 66,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.75),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF9DB68E),
+          width: 1,
+        ),
+      ),
+      child: imagePath.isEmpty
+          ? const Icon(
+              Icons.article_outlined,
+              size: 30,
+              color: DashboardScreen.dark,
+            )
+          : Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.article_outlined,
+                size: 30,
+                color: DashboardScreen.dark,
+              ),
+            ),
+    );
+  }
+}
+
+/// BOTTOM NAVIGASI
 class _BottomNav extends StatelessWidget {
-  const _BottomNav({required this.currentIndex, required this.onTap});
+  const _BottomNav({
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 92,
+    return Container(
+      height: 96,
+      color: const Color(0xFFF3F3F3),
       child: Stack(
         clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
         children: [
-          Container(
-            height: 76,
-            decoration: const BoxDecoration(
-              color: DashboardScreen.green,
-              border: Border(
-                top: BorderSide(color: DashboardScreen.border, width: 1),
-              ),
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(28),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(Icons.home_outlined, "Beranda", 0),
-                _navItem(Icons.article_outlined, "Artikel", 1),
-                const SizedBox(width: 58),
-                _navItem(Icons.history, "Riwayat", 3),
-                _navItem(Icons.account_circle_outlined, "Akun", 4),
-              ],
-            ),
-          ),
           Positioned(
-            top: -14,
             left: 0,
             right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: () => onTap(2),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF6F3F3),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color(0xFFE6E0E0),
-                          width: 3,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                            color: Colors.black12,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.camera_alt_outlined,
-                        size: 32,
-                        color: currentIndex == 2
-                            ? DashboardScreen.accentGreen
-                            : DashboardScreen.dark,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "Deteksi",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: currentIndex == 2
-                            ? DashboardScreen.accentGreen
-                            : DashboardScreen.dark,
-                      ),
-                    ),
-                  ],
+            bottom: 0,
+            child: Container(
+              height: 76,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: const BoxDecoration(
+                color: DashboardScreen.green,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(28),
                 ),
+                border: Border(
+                  top: BorderSide(
+                    color: DashboardScreen.border,
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _BottomNavItem(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_rounded,
+                      label: 'Beranda',
+                      active: currentIndex == 0,
+                      onTap: () => onTap(0),
+                    ),
+                  ),
+                  Expanded(
+                    child: _BottomNavItem(
+                      icon: Icons.article_outlined,
+                      activeIcon: Icons.article_rounded,
+                      label: 'Artikel',
+                      active: currentIndex == 1,
+                      onTap: () => onTap(1),
+                    ),
+                  ),
+                  const SizedBox(width: 76),
+                  Expanded(
+                    child: _BottomNavItem(
+                      icon: Icons.history_outlined,
+                      activeIcon: Icons.history_rounded,
+                      label: 'Riwayat',
+                      active: currentIndex == 3,
+                      onTap: () => onTap(3),
+                    ),
+                  ),
+                  Expanded(
+                    child: _BottomNavItem(
+                      icon: Icons.person_outline_rounded,
+                      activeIcon: Icons.person_rounded,
+                      label: 'Akun',
+                      active: currentIndex == 4,
+                      onTap: () => onTap(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 0,
+            child: GestureDetector(
+              onTap: () => onTap(2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 62,
+                    height: 62,
+                    decoration: BoxDecoration(
+                      color: currentIndex == 2
+                          ? const Color(0xFF36563C)
+                          : const Color(0xFFF6F3F3),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: currentIndex == 2
+                            ? const Color(0xFF36563C)
+                            : const Color(0xFFE6E0E0),
+                        width: 3,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 8,
+                          offset: Offset(0, 3),
+                          color: Colors.black12,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.camera_alt_outlined,
+                      size: 32,
+                      color: currentIndex == 2
+                          ? Colors.white
+                          : DashboardScreen.dark,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Deteksi',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: currentIndex == 2
+                          ? const Color(0xFF36563C)
+                          : DashboardScreen.dark,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -675,34 +761,65 @@ class _BottomNav extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _navItem(IconData icon, String label, int index) {
-    final active = currentIndex == index;
+class _BottomNavItem extends StatelessWidget {
+  const _BottomNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? const Color(0xFF36563C) : DashboardScreen.dark;
 
     return GestureDetector(
-      onTap: () => onTap(index),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: active ? DashboardScreen.accentGreen : DashboardScreen.dark,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: active
-                    ? DashboardScreen.accentGreen
-                    : DashboardScreen.dark,
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: SizedBox(
+        height: 76,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                active ? activeIcon : icon,
+                size: 29,
+                color: color,
               ),
-            ),
-          ],
+              const SizedBox(height: 3),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: active ? 18 : 0,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF36563C),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

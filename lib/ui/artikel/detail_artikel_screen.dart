@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../data/models/artikel_model.dart';
@@ -26,42 +25,16 @@ class DetailArtikelScreen extends StatelessWidget {
                 width: double.infinity,
                 color: const Color(0xFFF3F3F3),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 46, 24, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _TitleBadge(title: artikel.judul),
-                      const SizedBox(height: 34),
+                      _TitleSection(title: artikel.judul),
+                      const SizedBox(height: 22),
 
-                      // Kalau nanti ingin gambar tetap dipakai, blok ini bisa diaktifkan lagi.
                       if (artikel.gambar.isNotEmpty) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Image.file(
-                            File(artikel.gambar),
-                            height: 180,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              height: 180,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: DashboardScreen.green,
-                                borderRadius: BorderRadius.circular(18),
-                                border: Border.all(
-                                  color: DashboardScreen.border,
-                                  width: 1,
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.image_not_supported_outlined,
-                                size: 40,
-                                color: DashboardScreen.dark,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                        _ArticleImage(imagePath: artikel.gambar),
+                        const SizedBox(height: 22),
                       ],
 
                       _ContentCard(content: artikel.isi),
@@ -87,20 +60,24 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
       child: Row(
         children: [
-          GestureDetector(
+          InkWell(
+            borderRadius: BorderRadius.circular(30),
             onTap: onBack,
-            child: const Icon(
-              Icons.arrow_back,
-              size: 34,
-              color: DashboardScreen.dark,
+            child: const Padding(
+              padding: EdgeInsets.all(6),
+              child: Icon(
+                Icons.arrow_back,
+                size: 32,
+                color: DashboardScreen.dark,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           const Text(
-            "Detail Artikel",
+            'Detail Artikel',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -114,40 +91,73 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _TitleBadge extends StatelessWidget {
-  const _TitleBadge({required this.title});
+class _TitleSection extends StatelessWidget {
+  const _TitleSection({required this.title});
 
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 175,
-          maxWidth: 230,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-        decoration: BoxDecoration(
-          color: DashboardScreen.green,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
-          ),
+      ),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          color: Color(0xFF36563C),
+          height: 1.25,
         ),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF36563C),
-            height: 1.15,
-          ),
+      ),
+    );
+  }
+}
+
+class _ArticleImage extends StatelessWidget {
+  const _ArticleImage({required this.imagePath});
+
+  final String imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8E8EE),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
         ),
+      ),
+      child: Image.asset(
+        imagePath,
+        width: double.infinity,
+        fit: BoxFit.fitWidth,
+        errorBuilder: (_, __, ___) {
+          return Container(
+            height: 180,
+            width: double.infinity,
+            alignment: Alignment.center,
+            color: DashboardScreen.green,
+            child: const Icon(
+              Icons.image_not_supported_outlined,
+              size: 42,
+              color: DashboardScreen.dark,
+            ),
+          );
+        },
       ),
     );
   }
@@ -160,26 +170,45 @@ class _ContentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final paragraphs = content
+        .trim()
+        .split(RegExp(r'\n\s*\n'))
+        .where((text) => text.trim().isNotEmpty)
+        .toList();
+
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 260),
-      padding: const EdgeInsets.fromLTRB(22, 26, 22, 26),
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 26),
       decoration: BoxDecoration(
         color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: DashboardScreen.border,
           width: 1,
         ),
       ),
-      child: Text(
-        content,
-        textAlign: TextAlign.justify,
-        style: const TextStyle(
-          fontSize: 15,
-          height: 1.9,
-          color: Color(0xFF36563C),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(paragraphs.length, (index) {
+          final paragraph = paragraphs[index].trim();
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index == paragraphs.length - 1 ? 0 : 18,
+            ),
+            child: Text(
+              paragraph,
+              textAlign: TextAlign.justify,
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.7,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF36563C),
+                letterSpacing: 0.05,
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
