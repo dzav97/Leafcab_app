@@ -72,7 +72,7 @@ class _HasilScreenState extends State<HasilScreen> {
         _namaTampil = 'Deteksi Gagal';
         _gejalaList = ['Terjadi kesalahan saat membaca model atau gambar.'];
         _pengendalianList = [
-          'Periksa model.tflite, labels.txt, config.json, dan preprocessing.',
+          'Periksa model.tflite, labels.txt, dan preprocessing.',
         ];
       });
 
@@ -120,8 +120,8 @@ class _HasilScreenState extends State<HasilScreen> {
         gambar: savedImagePath,
         label: _namaTampil,
         confidence: _confidence,
-        gejala: _gejalaList.map((e) => '• $e').join('\n'),
-        pengendalian: _pengendalianList.map((e) => '• $e').join('\n'),
+        gejala: _gejalaList.join('\n'),
+        pengendalian: _pengendalianList.join('\n'),
         syncState: 'local_only',
         isDeleted: 0,
         storagePath: null,

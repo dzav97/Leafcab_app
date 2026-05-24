@@ -32,10 +32,7 @@ class TfliteService {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final configStr = await rootBundle.loadString('assets/model/config.json');
-    final config = json.decode(configStr);
-
-    _inputSize = config['input_size'] ?? 224;
+    _inputSize = 224;
   }
 
   Future<TfliteResult> predictImage(File imageFile) async {
@@ -82,9 +79,9 @@ class TfliteService {
         return List.generate(_inputSize, (x) {
           final pixel = image.getPixel(x, y);
 
-          final r = pixel.r / 255.0;
-          final g = pixel.g / 255.0;
-          final b = pixel.b / 255.0;
+          final r = (pixel.r.toDouble() / 127.5) - 1.0;
+          final g = (pixel.g.toDouble() / 127.5) - 1.0;
+          final b = (pixel.b.toDouble() / 127.5) - 1.0;
 
           return [r, g, b];
         });
