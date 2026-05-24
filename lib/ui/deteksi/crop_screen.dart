@@ -37,6 +37,7 @@ class _CropScreenState extends State<CropScreen> {
   Future<void> _loadImageBytes() async {
     try {
       final bytes = await File(widget.imagePath).readAsBytes();
+
       if (!mounted) return;
 
       setState(() {
@@ -72,6 +73,7 @@ class _CropScreenState extends State<CropScreen> {
       await file.writeAsBytes(croppedData);
 
       if (!mounted) return;
+
       Navigator.pop(context, file);
     } catch (e) {
       if (!mounted) return;
@@ -107,62 +109,27 @@ class _CropScreenState extends State<CropScreen> {
                 width: double.infinity,
                 color: const Color(0xFFF3F3F3),
                 child: _isLoadingImage
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const _LoadingView()
                     : _imageData == null
-                        ? const Center(
-                            child: Text(
-                              'Gambar tidak tersedia.',
-                              style: TextStyle(
-                                color: DashboardScreen.dark,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
+                        ? const _EmptyView()
                         : Column(
                             children: [
                               const SizedBox(height: 18),
-                              const _InstructionText(),
+                              const _InstructionCard(),
                               const SizedBox(height: 18),
                               Expanded(
                                 child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 18),
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: DashboardScreen.green,
-                                      borderRadius: BorderRadius.circular(28),
-                                      border: Border.all(
-                                        color: DashboardScreen.border,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(28),
-                                      child: Crop(
-                                        image: _imageData!,
-                                        controller: _cropController,
-                                        onCropped: (croppedData) {
-                                          _saveCroppedImage(croppedData);
-                                        },
-                                        withCircleUi: false,
-                                        baseColor: DashboardScreen.green,
-                                        maskColor:
-                                            Colors.black.withValues(alpha:0.45),
-                                        radius: 18,
-                                        initialSize: 0.75,
-                                        fixCropRect: true,
-                                        interactive: true,
-                                        cornerDotBuilder: (size, edgeAlignment) {
-                                          return const _CropCornerDot();
-                                        },
-                                      ),
-                                    ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                  ),
+                                  child: _CropArea(
+                                    imageData: _imageData!,
+                                    cropController: _cropController,
+                                    onCropped: _saveCroppedImage,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 18),
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(18, 0, 18, 28),
@@ -171,6 +138,7 @@ class _CropScreenState extends State<CropScreen> {
                                     Expanded(
                                       child: _BottomButton(
                                         text: 'Batal',
+                                        icon: Icons.close_rounded,
                                         backgroundColor:
                                             const Color(0xFFF7F7F7),
                                         textColor: DashboardScreen.dark,
@@ -179,15 +147,18 @@ class _CropScreenState extends State<CropScreen> {
                                             : () => Navigator.pop(context),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: _BottomButton(
                                         text: _isCropping
                                             ? 'Memproses...'
                                             : 'Gunakan',
+                                        icon: _isCropping
+                                            ? Icons.hourglass_top_rounded
+                                            : Icons.check_rounded,
                                         backgroundColor:
-                                            DashboardScreen.green,
-                                        textColor: DashboardScreen.dark,
+                                            const Color(0xFF36563C),
+                                        textColor: Colors.white,
                                         onTap: _isCropping ? null : _startCrop,
                                       ),
                                     ),
@@ -205,6 +176,37 @@ class _CropScreenState extends State<CropScreen> {
   }
 }
 
+class _LoadingView extends StatelessWidget {
+  const _LoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: DashboardScreen.dark,
+      ),
+    );
+  }
+}
+
+class _EmptyView extends StatelessWidget {
+  const _EmptyView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        'Gambar tidak tersedia.',
+        style: TextStyle(
+          color: DashboardScreen.dark,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
 class _Header extends StatelessWidget {
   const _Header({this.onBack});
 
@@ -215,20 +217,24 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
       child: Row(
         children: [
-          GestureDetector(
+          InkWell(
             onTap: onBack,
-            child: Icon(
-              Icons.arrow_back,
-              size: 34,
-              color: onBack == null
-                  ? DashboardScreen.softText
-                  : DashboardScreen.dark,
+            borderRadius: BorderRadius.circular(30),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Icon(
+                Icons.arrow_back,
+                size: 32,
+                color: onBack == null
+                    ? DashboardScreen.softText
+                    : DashboardScreen.dark,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           const Text(
             'Potong Gambar',
             style: TextStyle(
@@ -244,22 +250,105 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _InstructionText extends StatelessWidget {
-  const _InstructionText();
+class _InstructionCard extends StatelessWidget {
+  const _InstructionCard();
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        'Atur area crop agar fokus pada daun yang akan dideteksi.',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 14,
-          fontStyle: FontStyle.italic,
-          color: DashboardScreen.softText,
-          height: 1.5,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 17,
+            backgroundColor: Color(0xFFD7E9D8),
+            child: Icon(
+              Icons.crop_rounded,
+              size: 21,
+              color: DashboardScreen.dark,
+            ),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Atur area crop agar fokus pada daun yang akan dideteksi.',
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.45,
+                color: DashboardScreen.softText,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CropArea extends StatelessWidget {
+  const _CropArea({
+    required this.imageData,
+    required this.cropController,
+    required this.onCropped,
+  });
+
+  final Uint8List imageData;
+  final CropController cropController;
+  final ValueChanged<Uint8List> onCropped;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: DashboardScreen.green,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Crop(
+        image: imageData,
+        controller: cropController,
+        onCropped: onCropped,
+        withCircleUi: false,
+        baseColor: DashboardScreen.green,
+        maskColor: Colors.black.withValues(alpha: 0.45),
+        radius: 18,
+        initialSize: 0.82,
+        fixCropRect: true,
+        interactive: true,
+        cornerDotBuilder: (size, edgeAlignment) {
+          return const _CropCornerDot();
+        },
       ),
     );
   }
@@ -268,38 +357,56 @@ class _InstructionText extends StatelessWidget {
 class _BottomButton extends StatelessWidget {
   const _BottomButton({
     required this.text,
+    required this.icon,
     required this.backgroundColor,
     required this.textColor,
     required this.onTap,
   });
 
   final String text;
+  final IconData icon;
   final Color backgroundColor;
   final Color textColor;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    final disabled = onTap == null;
+
+    return Material(
+      color: disabled ? const Color(0xFFE1E5E0) : backgroundColor,
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        height: 42,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          height: 46,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1,
+            ),
           ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: onTap == null ? DashboardScreen.softText : textColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 21,
+                color: disabled ? DashboardScreen.softText : textColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: disabled ? DashboardScreen.softText : textColor,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -313,15 +420,22 @@ class _CropCornerDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 18,
-      height: 18,
+      width: 19,
+      height: 19,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
         border: Border.all(
           color: DashboardScreen.dark,
-          width: 1.4,
+          width: 1.5,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
     );
   }

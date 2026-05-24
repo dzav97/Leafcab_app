@@ -42,7 +42,7 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal ambil gambar: $e")),
+        SnackBar(content: Text('Gagal ambil gambar: $e')),
       );
     }
   }
@@ -50,7 +50,9 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
   void _processImage() {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Silakan pilih gambar terlebih dahulu.")),
+        const SnackBar(
+          content: Text('Silakan pilih gambar terlebih dahulu.'),
+        ),
       );
       return;
     }
@@ -77,30 +79,39 @@ class _DeteksiScreenState extends State<DeteksiScreen> {
                 width: double.infinity,
                 color: const Color(0xFFF3F3F3),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 120),
+                  padding: const EdgeInsets.fromLTRB(20, 22, 20, 120),
                   child: Column(
                     children: [
                       const _InstructionBox(),
-                      const SizedBox(height: 28),
-                      _PreviewCard(image: _image),
                       const SizedBox(height: 22),
+                      _PreviewCard(image: _image),
+                      const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _ActionButton(
-                            icon: Icons.camera_alt_outlined,
-                            label: "Kamera",
-                            onTap: () => _pickAndCropImage(ImageSource.camera),
+                          Expanded(
+                            child: _ActionButton(
+                              icon: Icons.camera_alt_outlined,
+                              label: 'Kamera',
+                              onTap: () =>
+                                  _pickAndCropImage(ImageSource.camera),
+                            ),
                           ),
-                          _ActionButton(
-                            icon: Icons.photo_library_outlined,
-                            label: "Galeri",
-                            onTap: () => _pickAndCropImage(ImageSource.gallery),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: _ActionButton(
+                              icon: Icons.photo_library_outlined,
+                              label: 'Galeri',
+                              onTap: () =>
+                                  _pickAndCropImage(ImageSource.gallery),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 26),
-                      _ProcessButton(onTap: _processImage),
+                      const SizedBox(height: 22),
+                      _ProcessButton(
+                        onTap: _processImage,
+                        enabled: _image != null,
+                      ),
                     ],
                   ),
                 ),
@@ -121,9 +132,9 @@ class _HeaderTitle extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
       child: const Text(
-        "Deteksi",
+        'Deteksi',
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w800,
@@ -142,36 +153,58 @@ class _InstructionBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: DashboardScreen.border,
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.only(top: 2),
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: Color(0xFFD7E9D8),
             child: Icon(
               Icons.info_outline,
-              size: 26,
+              size: 22,
               color: DashboardScreen.dark,
             ),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 12),
           Expanded(
-            child: Text(
-              "Petunjuk\nPastikan pencahayaan cukup dan gambar daun terlihat jelas agar hasil deteksi lebih akurat.",
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.6,
-                fontStyle: FontStyle.italic,
-                color: DashboardScreen.softText,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Petunjuk Deteksi',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF36563C),
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Pastikan pencahayaan cukup dan gambar daun terlihat jelas agar hasil deteksi lebih akurat.',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    height: 1.45,
+                    color: DashboardScreen.softText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -187,30 +220,39 @@ class _PreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 362,
-      decoration: BoxDecoration(
-        color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(34),
-        border: Border.all(
-          color: DashboardScreen.border,
-          width: 1,
-        ),
-      ),
-      child: image == null
-          ? const Center(
-              child: _CameraPlaceholder(),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(34),
-              child: Image.file(
-                image!,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = constraints.maxWidth;
+
+        return Container(
+          width: size,
+          height: size,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: DashboardScreen.green,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1.2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: image == null
+              ? const _CameraPlaceholder()
+              : Image.file(
+                  image!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+        );
+      },
     );
   }
 }
@@ -220,15 +262,40 @@ class _CameraPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.camera_alt_outlined,
-          size: 120,
-          color: DashboardScreen.dark,
-        ),
-      ],
+    return Container(
+      color: DashboardScreen.green,
+      padding: const EdgeInsets.all(24),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.add_photo_alternate_outlined,
+            size: 82,
+            color: DashboardScreen.dark,
+          ),
+          SizedBox(height: 14),
+          Text(
+            'Belum ada gambar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF36563C),
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Ambil foto atau pilih gambar daun cabai dari galeri.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.35,
+              fontWeight: FontWeight.w500,
+              color: DashboardScreen.softText,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -246,38 +313,40 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: const Color(0xFFF8F8F8),
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        width: 145,
-        height: 34,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F8F8),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          height: 44,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color: DashboardScreen.dark,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF36563C),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 23,
+                color: DashboardScreen.dark,
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF36563C),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -285,33 +354,46 @@ class _ActionButton extends StatelessWidget {
 }
 
 class _ProcessButton extends StatelessWidget {
-  const _ProcessButton({required this.onTap});
+  const _ProcessButton({
+    required this.onTap,
+    required this.enabled,
+  });
 
   final VoidCallback onTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: enabled
+          ? const Color(0xFF36563C)
+          : const Color(0xFF9DB68E),
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        width: double.infinity,
-        height: 40,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F3F3),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: const Text(
-          "Mulai Proses Deteksi",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF36563C),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: double.infinity,
+          height: 46,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.search_rounded,
+                size: 22,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                enabled ? 'Mulai Proses Deteksi' : 'Pilih Gambar Dahulu',
+                style: const TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       ),
