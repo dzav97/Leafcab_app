@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             fontSize: 28,
             fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w400,
-            color: dark.withOpacity(0.95),
+            color: dark.withValues(alpha: 0.95),
           ),
         ),
       ],

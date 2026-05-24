@@ -23,62 +23,222 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   final RiwayatSyncService syncService = RiwayatSyncService();
 
   late Future<List<RiwayatDeteksi>> _futureRiwayat;
+  bool _isSyncing = false;
 
   String? get _userId => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void initState() {
     super.initState();
-    _futureRiwayat = _initRiwayat();
+    _futureRiwayat = _loadLocalRiwayat();
+    _syncInBackground();
   }
 
-  Future<List<RiwayatDeteksi>> _initRiwayat() async {
+  Future<List<RiwayatDeteksi>> _loadLocalRiwayat() async {
     final userId = _userId;
     if (userId == null) return [];
-
-    await syncService.syncRiwayat();
-    await syncService.restoreRiwayatDariCloud();
 
     return repo.ambilDaftar(userId);
   }
 
+  Future<void> _syncInBackground() async {
+    final userId = _userId;
+    if (userId == null || _isSyncing) return;
+
+    _isSyncing = true;
+
+    try {
+      await syncService.syncRiwayat().timeout(
+        const Duration(seconds: 8),
+      );
+
+      await syncService.restoreRiwayatDariCloud().timeout(
+        const Duration(seconds: 8),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _futureRiwayat = _loadLocalRiwayat();
+      });
+    } catch (e) {
+      debugPrint('Sync riwayat gagal atau timeout: $e');
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
   Future<void> _reload() async {
     setState(() {
-      _futureRiwayat = _initRiwayat();
+      _futureRiwayat = _loadLocalRiwayat();
     });
+
+    await _syncInBackground();
+  }
+
+  Future<void> _showResultDialog({
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color iconColor,
+  }) async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+          title: Column(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: iconColor.withValues(alpha: 0.12),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 34,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: DashboardScreen.dark,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: DashboardScreen.softText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                style: TextButton.styleFrom(
+                  backgroundColor: DashboardScreen.green,
+                  foregroundColor: DashboardScreen.dark,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(
+                      color: DashboardScreen.border,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _delete(RiwayatDeteksi item) async {
-    await repo.hapus(item);
-    if (!mounted) return;
+    try {
+      await repo.hapus(item);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Riwayat dihapus')),
-    );
+      if (!mounted) return;
 
-    await _reload();
+      setState(() {
+        _futureRiwayat = _loadLocalRiwayat();
+      });
+
+      await _showResultDialog(
+        title: 'Berhasil',
+        message: 'Riwayat berhasil dihapus.',
+        icon: Icons.check_circle_rounded,
+        iconColor: const Color(0xFF2FA84F),
+      );
+
+      _syncInBackground();
+    } catch (e) {
+      debugPrint('Gagal menghapus riwayat: $e');
+
+      if (!mounted) return;
+
+      await _showResultDialog(
+        title: 'Gagal',
+        message: 'Riwayat gagal dihapus. Silakan coba lagi.',
+        icon: Icons.error_rounded,
+        iconColor: Colors.red,
+      );
+    }
   }
 
   Future<void> _confirmDelete(RiwayatDeteksi item) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus Riwayat'),
-        content: const Text('Yakin ingin menghapus riwayat ini?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Batal'),
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text(
-              'Hapus',
-              style: TextStyle(color: Colors.red),
+          title: const Text(
+            'Hapus Riwayat',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: DashboardScreen.dark,
             ),
           ),
-        ],
-      ),
+          content: const Text(
+            'Yakin ingin menghapus riwayat ini?',
+            style: TextStyle(
+              color: DashboardScreen.softText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(
+                'Batal',
+                style: TextStyle(
+                  color: DashboardScreen.softText,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text(
+                'Hapus',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true) {
@@ -213,7 +373,10 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                                       DetailRiwayatScreen(item: item),
                                 ),
                               );
-                              await _reload();
+
+                              setState(() {
+                                _futureRiwayat = _loadLocalRiwayat();
+                              });
                             },
                             onDelete: () => _confirmDelete(item),
                           );
@@ -241,7 +404,7 @@ class _HeaderTitle extends StatelessWidget {
       color: DashboardScreen.green,
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
       child: const Text(
-        "Riwayat",
+        'Riwayat',
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w800,
@@ -295,7 +458,7 @@ class _RiwayatCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ClipRRect(

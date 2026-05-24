@@ -258,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontStyle: FontStyle.italic,
-                                      color: dark.withOpacity(0.78),
+                                      color: dark.withValues(alpha: 0.78),
                                     ),
                                   ),
                                 ),
@@ -313,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
-                                    color: dark.withOpacity(0.75),
+                                    color: dark.withValues(alpha: 0.75),
                                   ),
                                 ),
                               ),
@@ -356,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
             fontSize: 28,
             fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w400,
-            color: dark.withOpacity(0.95),
+            color: dark.withValues(alpha: 0.95),
           ),
         ),
       ],

@@ -29,17 +29,26 @@ class DetailRiwayatScreen extends StatelessWidget {
                 width: double.infinity,
                 color: const Color(0xFFF3F3F3),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 34, 24, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
                   child: Column(
                     children: [
                       _ImagePreview(item: item),
-                      const SizedBox(height: 28),
-                      _ResultBadge(label: item.label),
-                      const SizedBox(height: 24),
-                      _DetailCard(
+                      const SizedBox(height: 18),
+                      _ResultCard(
+                        label: item.label,
                         confidence: item.confidence,
-                        gejala: item.gejala,
-                        pengendalian: item.pengendalian,
+                      ),
+                      const SizedBox(height: 16),
+                      _InfoSection(
+                        icon: Icons.eco_outlined,
+                        title: 'Ciri-Ciri Gejala',
+                        content: item.gejala,
+                      ),
+                      const SizedBox(height: 16),
+                      _InfoSection(
+                        icon: Icons.health_and_safety_outlined,
+                        title: 'Pencegahan Awal',
+                        content: item.pengendalian,
                       ),
                     ],
                   ),
@@ -63,20 +72,24 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
       child: Row(
         children: [
-          GestureDetector(
+          InkWell(
             onTap: onBack,
-            child: const Icon(
-              Icons.arrow_back,
-              size: 34,
-              color: DashboardScreen.dark,
+            borderRadius: BorderRadius.circular(30),
+            child: const Padding(
+              padding: EdgeInsets.all(6),
+              child: Icon(
+                Icons.arrow_back,
+                size: 32,
+                color: DashboardScreen.dark,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           const Text(
-            "Detail Riwayat",
+            'Detail Riwayat',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -97,19 +110,26 @@ class _ImagePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      height: 145,
-      decoration: BoxDecoration(
-        color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: DashboardScreen.border,
-          width: 1.6,
+    return Center(
+      child: Container(
+        width: 220,
+        height: 220,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: DashboardScreen.green,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: DashboardScreen.border,
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
         child: _buildImage(),
       ),
     );
@@ -152,8 +172,10 @@ class _ImagePreview extends StatelessWidget {
   }
 
   Widget _buildImageIcon() {
-    return const Center(
-      child: Icon(
+    return Container(
+      color: DashboardScreen.green,
+      alignment: Alignment.center,
+      child: const Icon(
         Icons.image_outlined,
         size: 60,
         color: DashboardScreen.dark,
@@ -162,64 +184,131 @@ class _ImagePreview extends StatelessWidget {
   }
 }
 
-class _ResultBadge extends StatelessWidget {
-  const _ResultBadge({required this.label});
+class _ResultCard extends StatelessWidget {
+  const _ResultCard({
+    required this.label,
+    required this.confidence,
+  });
 
   final String label;
+  final double confidence;
 
   @override
   Widget build(BuildContext context) {
+    final confidencePercent = (confidence * 100).clamp(0, 100).toDouble();
+
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 175,
-        maxWidth: 230,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
         color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: DashboardScreen.border,
           width: 1,
         ),
       ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 17,
-          fontStyle: FontStyle.italic,
-          fontWeight: FontWeight.w500,
-          color: DashboardScreen.dark,
-          height: 1.15,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            'Hasil Deteksi',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: DashboardScreen.softText,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF36563C),
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              const Text(
+                'Confidence',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: DashboardScreen.softText,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: const Color(0xFF9DB68E),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  '${confidencePercent.toStringAsFixed(1)}%',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF36563C),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: confidencePercent / 100,
+              minHeight: 7,
+              backgroundColor: Colors.white.withValues(alpha: 0.55),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF36563C),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DetailCard extends StatelessWidget {
-  const _DetailCard({
-    required this.confidence,
-    required this.gejala,
-    required this.pengendalian,
+class _InfoSection extends StatelessWidget {
+  const _InfoSection({
+    required this.icon,
+    required this.title,
+    required this.content,
   });
 
-  final double confidence;
-  final String gejala;
-  final String pengendalian;
+  final IconData icon;
+  final String title;
+  final String content;
 
   @override
   Widget build(BuildContext context) {
+    final paragraphs = content
+        .trim()
+        .split(RegExp(r'\n\s*\n'))
+        .where((text) => text.trim().isNotEmpty)
+        .toList();
+
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 260),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
       decoration: BoxDecoration(
         color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: DashboardScreen.border,
           width: 1,
@@ -228,64 +317,51 @@ class _DetailCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Confidence: ${(confidence * 100).toStringAsFixed(2)}%',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: DashboardScreen.softText,
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 17,
+                backgroundColor: Colors.white.withValues(alpha: 0.55),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: DashboardScreen.dark,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF36563C),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
-          _SectionText(
-            title: 'Ciri-Ciri Gejala',
-            content: gejala,
-          ),
-          const SizedBox(height: 20),
-          _SectionText(
-            title: 'Pencegahan Awal',
-            content: pengendalian,
-          ),
+          const SizedBox(height: 14),
+          ...List.generate(paragraphs.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == paragraphs.length - 1 ? 0 : 14,
+              ),
+              child: Text(
+                paragraphs[index].trim(),
+                textAlign: TextAlign.start,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  height: 1.65,
+                  color: Color(0xFF36563C),
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.05,
+                ),
+              ),
+            );
+          }),
         ],
       ),
-    );
-  }
-}
-
-class _SectionText extends StatelessWidget {
-  const _SectionText({
-    required this.title,
-    required this.content,
-  });
-
-  final String title;
-  final String content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF36563C),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          content,
-          textAlign: TextAlign.justify,
-          style: const TextStyle(
-            fontSize: 14,
-            height: 1.75,
-            color: Color(0xFF36563C),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }

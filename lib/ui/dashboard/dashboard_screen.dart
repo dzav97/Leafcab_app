@@ -597,7 +597,7 @@ class _ArticleThumbnail extends StatelessWidget {
       height: 66,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.75),
+        color: Colors.white.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFF9DB68E),

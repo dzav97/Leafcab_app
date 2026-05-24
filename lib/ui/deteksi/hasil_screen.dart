@@ -33,7 +33,6 @@ class _HasilScreenState extends State<HasilScreen> {
   bool _saved = false;
   bool _loading = true;
 
-  String _rawLabel = '-';
   String _namaTampil = '-';
   double _confidence = 0.0;
   List<String> _gejalaList = [];
@@ -54,7 +53,6 @@ class _HasilScreenState extends State<HasilScreen> {
 
       if (!mounted) return;
       setState(() {
-        _rawLabel = rawLabel;
         _namaTampil = info?.namaTampil ?? rawLabel;
         _confidence = result.confidence;
         _gejalaList = info?.gejala ?? ['Gejala belum tersedia untuk label ini.'];
