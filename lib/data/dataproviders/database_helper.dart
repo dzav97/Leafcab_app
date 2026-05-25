@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -17,7 +18,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);
 
-    print('DB PATH: $path');
+    debugPrint('DB PATH: $path');
 
     return openDatabase(
       path,
@@ -28,7 +29,7 @@ class DatabaseHelper {
   }
 
   Future<void> _createDB(Database db, int version) async {
-    print('onCreate jalan');
+    debugPrint('onCreate jalan');
 
     await db.execute('''
       CREATE TABLE riwayat_deteksi (
@@ -59,7 +60,7 @@ class DatabaseHelper {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    print('Upgrade DB dari v$oldVersion ke v$newVersion');
+    debugPrint('Upgrade DB dari v$oldVersion ke v$newVersion');
 
     if (oldVersion < 3) {
       await _addColumnIfNotExists(

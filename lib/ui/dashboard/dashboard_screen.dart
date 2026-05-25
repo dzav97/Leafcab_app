@@ -183,7 +183,7 @@ class _AppLogoHeader extends StatelessWidget {
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.eco,
                     size: 42,
                     color: DashboardScreen.dark,
@@ -618,7 +618,7 @@ class _ArticleThumbnail extends StatelessWidget {
           : Image.asset(
               imagePath,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.article_outlined,
                 size: 30,
                 color: DashboardScreen.dark,

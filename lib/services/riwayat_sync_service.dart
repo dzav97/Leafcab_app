@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image/image.dart' as img;
-
 import '../data/models/riwayat_model.dart';
 import '../repository/riwayat_repository.dart';
 
@@ -127,7 +126,7 @@ class RiwayatSyncService {
 
       await _repo.upsert(updatedItem);
     } catch (e) {
-      print('Gagal sync upsert riwayat: $e');
+      debugPrint('Gagal sync upsert riwayat: $e');
     }
   }
 
@@ -144,7 +143,7 @@ class RiwayatSyncService {
 
       await _repo.hapusPermanen(item.localId);
     } catch (e) {
-      print('Gagal sync delete riwayat: $e');
+      debugPrint('Gagal sync delete riwayat: $e');
     }
   }
 

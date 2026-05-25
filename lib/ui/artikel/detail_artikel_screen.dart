@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../data/models/artikel_model.dart';
 import '../dashboard/dashboard_screen.dart';
 
@@ -151,7 +150,7 @@ class _ArticleImage extends StatelessWidget {
         imagePath,
         width: double.infinity,
         fit: BoxFit.fitWidth,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return Container(
             height: 180,
             width: double.infinity,

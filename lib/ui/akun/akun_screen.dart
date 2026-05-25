@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -61,87 +60,105 @@ class _AkunScreenState extends State<AkunScreen> {
       ),
     );
 
+    if (!mounted) return;
+
     if (keluar == true) {
       await _logout();
     }
   }
 
   Future<void> _hapusAkunDialog() async {
-    final passwordC = TextEditingController();
-    final rootContext = context;
+    final password = await showDialog<String>(
+      context: context,
+      builder: (_) => const _DeleteAccountDialog(),
+    );
+
+    if (!mounted) return;
+
+    if (password == null) return;
+
+    if (password.trim().isEmpty) {
+      await _showMessageDialog(
+        title: 'Gagal',
+        message: 'Password wajib diisi.',
+        isSuccess: false,
+      );
+      return;
+    }
+
+    await _hapusAkun(password);
+  }
+
+  Future<void> _hapusAkun(String password) async {
+    final pesan = await _auth.hapusAkun(
+      currentPassword: password,
+    );
+
+    if (!mounted) return;
+
+    if (pesan == null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    } else {
+      await _showMessageDialog(
+        title: 'Gagal',
+        message: pesan,
+        isSuccess: false,
+      );
+    }
+  }
+
+  Future<void> _showMessageDialog({
+    required String title,
+    required String message,
+    required bool isSuccess,
+  }) async {
+    if (!mounted) return;
 
     await showDialog(
-      context: rootContext,
+      context: context,
+      barrierDismissible: true,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
-        title: const Text(
-          'Hapus Akun',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        title: Row(
           children: [
-            const Text(
-              'Tindakan ini akan menghapus akun kamu secara permanen. Masukkan password untuk melanjutkan.',
+            Icon(
+              isSuccess
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.error_outline_rounded,
+              color: isSuccess ? DashboardScreen.dark : Colors.red,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordC,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password saat ini',
-                prefixIcon: const Icon(Icons.lock_outline_rounded),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
           ],
         ),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final pesan = await _auth.hapusAkun(
-                currentPassword: passwordC.text,
-              );
-
-              if (!mounted) return;
-
-              if (Navigator.canPop(dialogContext)) {
-                Navigator.pop(dialogContext);
-              }
-
-              if (pesan == null) {
-                Navigator.pushAndRemoveUntil(
-                  rootContext,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (_) => false,
-                );
-              } else {
-                ScaffoldMessenger.of(rootContext).showSnackBar(
-                  SnackBar(content: Text(pesan)),
-                );
-              }
-            },
             child: const Text(
-              'Hapus',
+              'OK',
               style: TextStyle(
-                color: Colors.red,
                 fontWeight: FontWeight.w700,
+                color: DashboardScreen.dark,
               ),
             ),
           ),
         ],
       ),
     );
-
-    passwordC.dispose();
   }
 
   @override
@@ -190,7 +207,6 @@ class _AkunScreenState extends State<AkunScreen> {
                         },
                       ),
                       const SizedBox(height: 22),
-
                       _MenuButton(
                         icon: Icons.info_outline_rounded,
                         title: 'Informasi Aplikasi',
@@ -203,9 +219,7 @@ class _AkunScreenState extends State<AkunScreen> {
                           );
                         },
                       ),
-
                       const SizedBox(height: 28),
-
                       Row(
                         children: [
                           Expanded(
@@ -239,6 +253,75 @@ class _AkunScreenState extends State<AkunScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DeleteAccountDialog extends StatefulWidget {
+  const _DeleteAccountDialog();
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  final _passwordC = TextEditingController();
+
+  @override
+  void dispose() {
+    _passwordC.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      title: const Text(
+        'Hapus Akun',
+        style: TextStyle(fontWeight: FontWeight.w800),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Tindakan ini akan menghapus akun kamu secara permanen. Masukkan password untuk melanjutkan.',
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordC,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password saat ini',
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Batal'),
+        ),
+        TextButton(
+          onPressed: () {
+            final password = _passwordC.text.trim();
+            Navigator.pop(context, password);
+          },
+          child: const Text(
+            'Hapus',
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

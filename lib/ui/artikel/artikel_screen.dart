@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../data/models/artikel_model.dart';
 import '../../repository/artikel_repository.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -69,7 +68,7 @@ class ArtikelScreen extends StatelessWidget {
                     return ListView.separated(
                       padding: const EdgeInsets.fromLTRB(18, 38, 18, 120),
                       itemCount: artikelList.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      separatorBuilder: (_, _) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         final artikel = artikelList[index];
                         return _ArtikelCard(artikel: artikel);
@@ -160,7 +159,7 @@ class _ArtikelCard extends StatelessWidget {
                   child: Image.asset(
                     artikel.gambar,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.eco,
                       color: DashboardScreen.dark,
                       size: 24,

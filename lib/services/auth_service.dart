@@ -30,7 +30,7 @@ class AuthService {
       }
 
       await user.sendEmailVerification();
-      await user.reload();
+      await _auth.signOut();
 
       return 'Akun berhasil dibuat. Link verifikasi telah dikirim ke email Anda.';
     } on FirebaseAuthException catch (e) {

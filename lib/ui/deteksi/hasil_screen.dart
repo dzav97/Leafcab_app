@@ -332,7 +332,7 @@ class _ImageCard extends StatelessWidget {
         child: Image.file(
           imageFile,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Center(
+          errorBuilder: (_, _, _) => const Center(
             child: Icon(
               Icons.image_outlined,
               size: 64,

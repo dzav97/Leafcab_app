@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -343,7 +342,7 @@ class _AvatarSection extends StatelessWidget {
             width: 108,
             height: 108,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               shape: BoxShape.circle,
               border: Border.all(
                 color: DashboardScreen.border,

@@ -149,7 +149,7 @@ class _ImagePreview extends StatelessWidget {
         return Image.file(
           file,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildBase64OrIcon(),
+          errorBuilder: (_, _, _) => _buildBase64OrIcon(),
         );
       }
     }
@@ -167,7 +167,7 @@ class _ImagePreview extends StatelessWidget {
         return Image.memory(
           bytes,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildImageIcon(),
+          errorBuilder: (_, _, _) => _buildImageIcon(),
         );
       } catch (_) {
         return _buildImageIcon();

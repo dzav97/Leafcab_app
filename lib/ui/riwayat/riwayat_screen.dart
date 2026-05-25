@@ -254,7 +254,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         return Image.file(
           file,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildBase64OrIcon(item),
+          errorBuilder: (_, _, _) => _buildBase64OrIcon(item),
         );
       }
     }
@@ -272,7 +272,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         return Image.memory(
           bytes,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildImageIcon(),
+          errorBuilder: (_, _, _) => _buildImageIcon(),
         );
       } catch (_) {
         return _buildImageIcon();
@@ -363,7 +363,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(18, 22, 18, 120),
                         itemCount: data.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 14),
+                        separatorBuilder: (_, _) => const SizedBox(height: 14),
                         itemBuilder: (context, i) {
                           final item = data[i];
 
