@@ -205,7 +205,12 @@ class _HasilScreenState extends State<HasilScreen> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: const Color(0xFFF3F3F3),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF4F6F3),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
+                ),
                 child: _loading
                     ? const _LoadingView()
                     : SingleChildScrollView(
@@ -265,29 +270,30 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+      padding: const EdgeInsets.fromLTRB(12, 12, 24, 18),
       child: Row(
         children: [
-          InkWell(
-            onTap: onBack,
-            borderRadius: BorderRadius.circular(30),
-            child: const Padding(
-              padding: EdgeInsets.all(6),
-              child: Icon(
-                Icons.arrow_back,
-                size: 32,
-                color: DashboardScreen.dark,
-              ),
+          IconButton(
+            onPressed: onBack,
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: DashboardScreen.dark,
+              size: 28,
             ),
           ),
-          const SizedBox(width: 8),
-          const Text(
-            'Hasil Deteksi',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: DashboardScreen.dark,
-              height: 1.05,
+          const SizedBox(width: 4),
+          const Expanded(
+            child: Text(
+              'Hasil Deteksi',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: DashboardScreen.dark,
+                letterSpacing: 0.1,
+                height: 1.05,
+              ),
             ),
           ),
         ],

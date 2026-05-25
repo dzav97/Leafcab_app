@@ -78,15 +78,15 @@ class _HomeContent extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
       child: const Text(
         'Beranda',
         style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w800,
+          fontSize: 26,
+          fontWeight: FontWeight.w900,
           color: DashboardScreen.dark,
           letterSpacing: 0.2,
-          height: 1.1,
+          height: 1.05,
         ),
       ),
     );
@@ -95,7 +95,12 @@ class _HomeContent extends StatelessWidget {
   Widget _buildMainContent(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF3F3F3),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF4F6F3),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 22, 18, 130),
         child: Column(

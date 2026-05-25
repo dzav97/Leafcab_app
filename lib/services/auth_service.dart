@@ -185,50 +185,51 @@ class AuthService {
         return 'Email user tidak ditemukan.';
       }
 
-      if (username.trim().isNotEmpty &&
-          username.trim() != (user.displayName ?? '')) {
-        await user.updateDisplayName(username.trim());
-      }
+      final usernameBaru = username.trim();
+      final emailBaru = email.trim();
+      final passwordLama = currentPassword.trim();
+      final passwordBaru = newPassword?.trim() ?? '';
+
+      final usernameChanged =
+          usernameBaru.isNotEmpty && usernameBaru != (user.displayName ?? '');
 
       final emailChanged =
-          email.trim().isNotEmpty && email.trim() != oldEmail.trim();
-      final passwordChanged =
-          newPassword != null && newPassword.trim().isNotEmpty;
+          emailBaru.isNotEmpty && emailBaru != oldEmail.trim();
+
+      final passwordChanged = passwordBaru.isNotEmpty;
+
+      if (!usernameChanged && !emailChanged && !passwordChanged) {
+        return 'Tidak ada perubahan data.';
+      }
+
+      if ((emailChanged || passwordChanged) && passwordLama.isEmpty) {
+        return 'Masukkan password saat ini untuk mengubah email atau password.';
+      }
 
       if (emailChanged || passwordChanged) {
-        if (currentPassword.trim().isEmpty) {
-          return 'Masukkan password saat ini untuk mengubah email atau password.';
-        }
-
         final credential = EmailAuthProvider.credential(
           email: oldEmail,
-          password: currentPassword.trim(),
+          password: passwordLama,
         );
 
         await user.reauthenticateWithCredential(credential);
+      }
 
-        if (emailChanged) {
-          await user.verifyBeforeUpdateEmail(email.trim());
-        }
+      if (emailChanged) {
+        await user.verifyBeforeUpdateEmail(emailBaru);
+      }
 
-        if (passwordChanged) {
-          await user.updatePassword(newPassword.trim());
-        }
+      if (passwordChanged) {
+        await user.updatePassword(passwordBaru);
+      }
+
+      if (usernameChanged) {
+        await user.updateDisplayName(usernameBaru);
       }
 
       await user.reload();
 
-      if (emailChanged && passwordChanged) {
-        return 'Password berhasil diubah. Link verifikasi telah dikirim ke email baru Anda.';
-      } else if (emailChanged) {
-        return 'Link verifikasi telah dikirim ke email baru Anda. Email akun akan berubah setelah diverifikasi.';
-      } else if (passwordChanged) {
-        return 'Password berhasil diperbarui.';
-      } else if (username.trim().isNotEmpty) {
-        return 'Username berhasil diperbarui.';
-      }
-
-      return 'Tidak ada perubahan data.';
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         return 'Silakan login ulang lalu coba lagi.';
@@ -244,6 +245,7 @@ class AuthService {
       } else if (e.code == 'too-many-requests') {
         return 'Terlalu banyak percobaan. Coba lagi nanti.';
       }
+
       return e.message ?? 'Gagal memperbarui akun.';
     } catch (e) {
       return 'Terjadi kesalahan saat memperbarui akun: $e';

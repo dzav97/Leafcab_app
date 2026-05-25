@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'edit_akun_screen.dart';
+import 'info_apk.dart';
 
 class AkunScreen extends StatefulWidget {
   const AkunScreen({super.key});
@@ -27,6 +28,44 @@ class _AkunScreenState extends State<AkunScreen> {
     );
   }
 
+  Future<void> _logoutDialog() async {
+    final keluar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          'Logout',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: const Text(
+          'Apakah kamu yakin ingin keluar dari akun ini?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text(
+              'Logout',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (keluar == true) {
+      await _logout();
+    }
+  }
+
   Future<void> _hapusAkunDialog() async {
     final passwordC = TextEditingController();
     final rootContext = context;
@@ -34,13 +73,32 @@ class _AkunScreenState extends State<AkunScreen> {
     await showDialog(
       context: rootContext,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus Akun'),
-        content: TextField(
-          controller: passwordC,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Masukkan password saat ini',
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          'Hapus Akun',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Tindakan ini akan menghapus akun kamu secara permanen. Masukkan password untuk melanjutkan.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordC,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password saat ini',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -55,23 +113,17 @@ class _AkunScreenState extends State<AkunScreen> {
 
               if (!mounted) return;
 
+              if (Navigator.canPop(dialogContext)) {
+                Navigator.pop(dialogContext);
+              }
+
               if (pesan == null) {
-                if (Navigator.canPop(dialogContext)) {
-                  Navigator.pop(dialogContext);
-                }
-
-                if (!mounted) return;
-
                 Navigator.pushAndRemoveUntil(
                   rootContext,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (_) => false,
                 );
               } else {
-                if (Navigator.canPop(dialogContext)) {
-                  Navigator.pop(dialogContext);
-                }
-
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(content: Text(pesan)),
                 );
@@ -79,7 +131,10 @@ class _AkunScreenState extends State<AkunScreen> {
             },
             child: const Text(
               'Hapus',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
@@ -92,9 +147,11 @@ class _AkunScreenState extends State<AkunScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+
     final username = user?.displayName?.isNotEmpty == true
         ? user!.displayName!
         : 'Belum diatur';
+
     final email = user?.email ?? 'Belum diatur';
 
     return Scaffold(
@@ -107,46 +164,68 @@ class _AkunScreenState extends State<AkunScreen> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: const Color(0xFFF3F3F3),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF4F6F3),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
+                ),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 120),
+                  padding: const EdgeInsets.fromLTRB(24, 38, 24, 120),
                   child: Column(
                     children: [
-                      const _AvatarCircle(),
-                      const SizedBox(height: 22),
-                      _EditProfileButton(
-                        onTap: () async {
+                      _ProfileCard(
+                        username: username,
+                        email: email,
+                        onEditTap: () async {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const EditAkunScreen(),
                             ),
                           );
+
+                          if (!mounted) return;
                           setState(() {});
                         },
                       ),
-                      const SizedBox(height: 38),
-                      _InfoCard(
-                        username: username,
-                        email: email,
+                      const SizedBox(height: 22),
+
+                      _MenuButton(
+                        icon: Icons.info_outline_rounded,
+                        title: 'Informasi Aplikasi',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const InformasiAplikasiScreen(),
+                            ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 30),
+
+                      const SizedBox(height: 28),
+
                       Row(
                         children: [
                           Expanded(
                             child: _ActionButton(
                               text: 'Logout',
-                              textColor: Colors.black,
+                              icon: Icons.logout_rounded,
+                              textColor: DashboardScreen.dark,
+                              backgroundColor: Colors.white,
                               borderColor: DashboardScreen.border,
-                              onTap: _logout,
+                              onTap: _logoutDialog,
                             ),
                           ),
-                          const SizedBox(width: 18),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: _ActionButton(
                               text: 'Hapus Akun',
+                              icon: Icons.delete_outline_rounded,
                               textColor: Colors.red,
-                              borderColor: DashboardScreen.border,
+                              backgroundColor: const Color(0xFFFFF4F4),
+                              borderColor: const Color(0xFFFFC8C8),
                               onTap: _hapusAkunDialog,
                             ),
                           ),
@@ -172,25 +251,79 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
-      child: Row(
-        children: const [
-          Expanded(
-            child: Text(
-              'Akun',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: DashboardScreen.dark,
-                height: 1.05,
-              ),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+      child: const Text(
+        'Akun',
+        style: TextStyle(
+          fontSize: 26,
+          fontWeight: FontWeight.w900,
+          color: DashboardScreen.dark,
+          letterSpacing: 0.2,
+          height: 1.05,
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
+    required this.username,
+    required this.email,
+    required this.onEditTap,
+  });
+
+  final String username;
+  final String email;
+  final VoidCallback onEditTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 30, 24, 26),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: DashboardScreen.border,
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const _AvatarCircle(),
+          const SizedBox(height: 18),
+          Text(
+            username,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: DashboardScreen.dark,
             ),
           ),
-          Icon(
-            Icons.info_outline,
-            size: 34,
-            color: DashboardScreen.dark,
+          const SizedBox(height: 6),
+          Text(
+            email,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B776C),
+            ),
           ),
+          const SizedBox(height: 24),
+          _EditProfileButton(onTap: onEditTap),
         ],
       ),
     );
@@ -203,15 +336,20 @@ class _AvatarCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 102,
-      height: 102,
+      width: 112,
+      height: 112,
       decoration: BoxDecoration(
         color: DashboardScreen.green,
         shape: BoxShape.circle,
         border: Border.all(
-          color: DashboardScreen.border,
-          width: 1,
+          color: DashboardScreen.dark,
+          width: 1.2,
         ),
+      ),
+      child: const Icon(
+        Icons.person_rounded,
+        size: 62,
+        color: DashboardScreen.dark,
       ),
     );
   }
@@ -224,27 +362,34 @@ class _EditProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: DashboardScreen.green,
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        width: 120,
-        height: 30,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F7F7),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: DashboardScreen.border,
-            width: 1,
-          ),
-        ),
-        child: const Text(
-          'Edit Profil',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF36563C),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: double.infinity,
+          height: 48,
+          alignment: Alignment.center,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.edit_rounded,
+                size: 18,
+                color: DashboardScreen.dark,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Edit Profil',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: DashboardScreen.dark,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -252,94 +397,63 @@ class _EditProfileButton extends StatelessWidget {
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.username,
-    required this.email,
-  });
-
-  final String username;
-  final String email;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-      decoration: BoxDecoration(
-        color: DashboardScreen.green,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: DashboardScreen.border,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _InfoField(
-            title: 'Username:',
-            value: username,
-          ),
-          const SizedBox(height: 18),
-          _InfoField(
-            title: 'Gmail:',
-            value: email,
-          ),
-          const SizedBox(height: 18),
-          const _InfoField(
-            title: 'Password:',
-            value: '********',
-            showLine: false,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoField extends StatelessWidget {
-  const _InfoField({
+class _MenuButton extends StatelessWidget {
+  const _MenuButton({
+    required this.icon,
     required this.title,
-    required this.value,
-    this.showLine = true,
+    required this.onTap,
   });
 
+  final IconData icon;
   final String title;
-  final String value;
-  final bool showLine;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF36563C),
+    return Material(
+      color: DashboardScreen.green,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: DashboardScreen.border,
+              width: 1.2,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: DashboardScreen.dark,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: DashboardScreen.dark,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 26,
+                color: DashboardScreen.dark,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: DashboardScreen.dark,
-          ),
-        ),
-        if (showLine) ...[
-          const SizedBox(height: 8),
-          Container(
-            width: 240,
-            height: 1.2,
-            color: const Color(0xFF4D6B50),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }
@@ -347,38 +461,60 @@ class _InfoField extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.text,
+    required this.icon,
     required this.textColor,
+    required this.backgroundColor,
     required this.borderColor,
     required this.onTap,
   });
 
   final String text;
+  final IconData icon;
   final Color textColor;
+  final Color backgroundColor;
   final Color borderColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: backgroundColor,
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        height: 34,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F7F7),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: borderColor,
-            width: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          height: 48,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: borderColor,
+              width: 1.2,
+            ),
           ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: textColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 19,
+                color: textColor,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

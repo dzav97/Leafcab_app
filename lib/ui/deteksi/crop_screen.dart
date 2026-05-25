@@ -107,7 +107,12 @@ class _CropScreenState extends State<CropScreen> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: const Color(0xFFF3F3F3),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF4F6F3),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
+                ),
                 child: _isLoadingImage
                     ? const _LoadingView()
                     : _imageData == null
@@ -214,34 +219,35 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disabled = onBack == null;
+
     return Container(
       width: double.infinity,
       color: DashboardScreen.green,
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+      padding: const EdgeInsets.fromLTRB(12, 12, 24, 18),
       child: Row(
         children: [
-          InkWell(
-            onTap: onBack,
-            borderRadius: BorderRadius.circular(30),
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Icon(
-                Icons.arrow_back,
-                size: 32,
-                color: onBack == null
-                    ? DashboardScreen.softText
-                    : DashboardScreen.dark,
-              ),
+          IconButton(
+            onPressed: onBack,
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: disabled ? DashboardScreen.softText : DashboardScreen.dark,
+              size: 28,
             ),
           ),
-          const SizedBox(width: 8),
-          const Text(
-            'Potong Gambar',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: DashboardScreen.dark,
-              height: 1.05,
+          const SizedBox(width: 4),
+          const Expanded(
+            child: Text(
+              'Potong Gambar',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: DashboardScreen.dark,
+                letterSpacing: 0.1,
+                height: 1.05,
+              ),
             ),
           ),
         ],
