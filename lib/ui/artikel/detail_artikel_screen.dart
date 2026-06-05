@@ -196,6 +196,7 @@ class _ContentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(paragraphs.length, (index) {
           final paragraph = paragraphs[index].trim();
+          final isSource = paragraph.startsWith('Sumber:');
 
           return Padding(
             padding: EdgeInsets.only(
@@ -204,11 +205,12 @@ class _ContentCard extends StatelessWidget {
             child: Text(
               paragraph,
               textAlign: TextAlign.justify,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.7,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF36563C),
+              style: TextStyle(
+                fontSize: isSource ? 13 : 15,
+                height: isSource ? 1.5 : 1.7,
+                fontWeight: isSource ? FontWeight.w500 : FontWeight.w400,
+                fontStyle: isSource ? FontStyle.italic : FontStyle.normal,
+                color: isSource ? const Color(0xFF5A7B60) : const Color(0xFF36563C),
                 letterSpacing: 0.05,
               ),
             ),

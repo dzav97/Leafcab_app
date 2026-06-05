@@ -130,8 +130,7 @@ class _ArtikelCard extends StatelessWidget {
         );
       },
       child: Container(
-        height: 86,
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
           color: DashboardScreen.green,
           borderRadius: BorderRadius.circular(18),
@@ -141,6 +140,7 @@ class _ArtikelCard extends StatelessWidget {
           ),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 50,
@@ -172,13 +172,11 @@ class _ArtikelCard extends StatelessWidget {
             Expanded(
               child: Text(
                 artikel.judul,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF36563C),
-                  height: 1.1,
+                  height: 1.2, 
                 ),
               ),
             ),

@@ -129,7 +129,6 @@ class _HasilScreenState extends State<HasilScreen> {
 
       await repo.simpan(record);
 
-      // Sync dibuat tetap jalan, tapi tidak mengubah tampilan halaman.
       await syncService.syncRiwayat();
 
       if (!mounted) return;
@@ -227,13 +226,13 @@ class _HasilScreenState extends State<HasilScreen> {
                             _InfoSection(
                               icon: Icons.eco_outlined,
                               title: 'Ciri-Ciri Gejala',
-                              items: _gejalaList,
+                              content: _gejalaList.join('\n\n'),
                             ),
                             const SizedBox(height: 16),
                             _InfoSection(
                               icon: Icons.health_and_safety_outlined,
                               title: 'Pencegahan Awal',
-                              items: _pengendalianList,
+                              content: _pengendalianList.join('\n\n'),
                             ),
                           ],
                         ),
@@ -335,7 +334,7 @@ class _ImageCard extends StatelessWidget {
           errorBuilder: (_, _, _) => const Center(
             child: Icon(
               Icons.image_outlined,
-              size: 64,
+              size: 60,
               color: DashboardScreen.dark,
             ),
           ),
@@ -372,32 +371,26 @@ class _ResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(
-            width: double.infinity,
-            child: Text(
-              'Hasil Deteksi',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: DashboardScreen.softText,
-              ),
+          const Text(
+            'Hasil Deteksi',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: DashboardScreen.softText,
             ),
           ),
           const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF36563C),
-                height: 1.2,
-              ),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF36563C),
+              height: 1.2,
             ),
           ),
           const SizedBox(height: 14),
@@ -458,18 +451,19 @@ class _InfoSection extends StatelessWidget {
   const _InfoSection({
     required this.icon,
     required this.title,
-    required this.items,
+    required this.content,
   });
 
   final IconData icon;
   final String title;
-  final List<String> items;
+  final String content;
 
   @override
   Widget build(BuildContext context) {
-    final cleanItems = items
-        .map((item) => item.trim())
-        .where((item) => item.isNotEmpty)
+    final paragraphs = content
+        .trim()
+        .split(RegExp(r'\n\s*\n'))
+        .where((text) => text.trim().isNotEmpty)
         .toList();
 
     return Container(
@@ -511,38 +505,24 @@ class _InfoSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          ...cleanItems.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Icon(
-                      Icons.circle,
-                      size: 6,
-                      color: Color(0xFF36563C),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      item,
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        height: 1.6,
-                        color: Color(0xFF36563C),
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.05,
-                      ),
-                    ),
-                  ),
-                ],
+          ...List.generate(paragraphs.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == paragraphs.length - 1 ? 0 : 14,
               ),
-            ),
-          ),
+              child: Text(
+                paragraphs[index].trim(),
+                textAlign: TextAlign.start,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  height: 1.65,
+                  color: Color(0xFF36563C),
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.05,
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );

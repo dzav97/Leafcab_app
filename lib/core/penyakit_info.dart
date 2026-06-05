@@ -14,103 +14,64 @@ const Map<String, PenyakitInfo> penyakitCabaiMap = {
   'Bercak Bakteri': PenyakitInfo(
     namaTampil: 'Bercak Bakteri (Bacterial Leaf Spot)',
     gejala: [
-      'Muncul bercak kecil pada daun yang kemudian menjadi coklat atau kehitaman.',
-      'Bercak dapat menyebar dan menyebabkan jaringan daun rusak.',
-      'Penyakit sering berkembang saat cuaca hangat dan lembab serta terdapat embun pada daun.',
+      'Disebabkan oleh Xanthomonas campestris pv. vesicatoria. Gejala pada daun berupa bercak kecil berbentuk bulat/sirkuler, awalnya seperti spot berair, lalu berubah menjadi nekrotik/coklat. Pada permukaan atas daun bercak tampak seperti tenggelam, sedangkan bagian bawah tampak menonjol. Jika parah, bercak menyatu dan daun dapat gugur/defoliasi. Pada buah dapat muncul bercak seperti kutil bulat tidak beraturan dan keras.',
     ],
     pengendalian: [
-      'Menggunakan benih sehat dan bebas penyakit.',
-      'Sanitasi tanaman sakit atau sisa tanaman yang terinfeksi.',
-      'Menghindari kondisi daun terlalu lembab.',
-      'Jika diperlukan dapat menggunakan bakterisida sesuai anjuran.',
+      'Gunakan benih sehat/bersertifikat, lakukan sanitasi lahan, buang sisa tanaman sakit, lakukan rotasi tanaman, musnahkan tanaman muda yang sudah terinfeksi berat, dan bila perlu gunakan bakterisida/fungisida berbahan tembaga sesuai anjuran.',
     ],
   ),
   'Bercak Serkospora': PenyakitInfo(
     namaTampil: 'Bercak Serkospora (Cercospora Leaf Spot)',
     gejala: [
-      'Muncul bercak bulat coklat pada daun dengan pusat bercak berwarna pucat atau putih.',
-      'Bercak dapat menyebabkan lubang pada daun dan akhirnya daun rontok.',
-      'Serangan berat dapat menyebabkan tanaman kehilangan banyak daun sehingga produksi menurun.',
+      'Disebabkan oleh Cercospora capsici / Cercospora sp.. Gejala berupa bercak kecil bulat dan kering pada daun. Pada sumber Balai Penelitian Tanaman Sayuran, bercak disebut menyerupai mata kodok/frog eyes, bagian tengah bercak abu-abu tua/kering, tepi bercak coklat, daun cepat menguning sebelum waktunya, lalu bisa rontok/gugur. Pada serangan berat, tanaman dapat kehilangan banyak daun.',
     ],
     pengendalian: [
-      'Sanitasi tanaman dan sisa tanaman yang terinfeksi.',
-      'Menggunakan bibit bebas patogen.',
-      'Perbaikan drainase dan menghindari kelembaban berlebih.',
-      'Rotasi tanaman dengan tanaman non-solanaceae.',
-      'Penggunaan fungisida jika serangan berat.',
+      'Lakukan sanitasi dengan membuang dan memusnahkan daun/sisa tanaman terinfeksi, gunakan benih bebas patogen, perbaiki drainase, pilih waktu tanam yang sesuai, lakukan rotasi dengan tanaman non-solanaceae, dan jika serangan tidak terkendali gunakan fungisida berbahan aktif difenoconazole seperti Score 250 EC 0,5 ml/liter dengan interval 7 hari sesuai anjuran.',
     ],
   ),
   'Kutu Kebul': PenyakitInfo(
     namaTampil: 'Kutu Kebul (Whitefly)',
     gejala: [
-      'Daun mengalami bercak nekrotik akibat hisapan serangga.',
-      'Tanaman tumbuh terhambat jika populasi tinggi.',
-      'Menghasilkan embun madu yang menyebabkan jamur jelaga hitam pada daun.',
-      'Berperan sebagai vektor berbagai virus tanaman termasuk geminivirus.',
+      'Disebabkan oleh hama sekaligus vektor virus, terutama virus kuning/gemini. Imago berukuran kecil sekitar 1-1,5 mm, berwarna putih, sayap seperti tertutup lilin/tepung sehingga saat terbang tampak seperti “kebul putih”. Serangan pada daun menimbulkan bercak nekrotik akibat isapan nimfa dan serangga dewasa. Populasi tinggi dapat menghambat pertumbuhan tanaman. Kutu kebul juga menghasilkan embun madu yang dapat memicu jamur jelaga hitam, sehingga fotosintesis terganggu.',
     ],
     pengendalian: [
-      'Pemanfaatan musuh alami seperti kumbang predator dan parasitoid.',
-      'Perangkap warna kuning untuk menangkap serangga.',
-      'Sanitasi lingkungan dan rotasi tanaman.',
-      'Penanaman tanaman perangkap seperti Tagetes atau jagung.',
-      'Insektisida selektif jika populasi sangat tinggi.',
+      'Pasang perangkap lekat kuning, gunakan kelambu di persemaian, tanam tanaman penghalang/barrier seperti jagung, orok-orok, tagetes, atau kacang panjang, lakukan rotasi tanaman bukan inang virus, musnahkan sisa tanaman terserang, manfaatkan musuh alami seperti Menochilus sexmaculatus, Encarsia formosa, atau jamur entomopatogen seperti Beauveria bassiana, dan gunakan insektisida terdaftar bila populasi tinggi.',
     ],
   ),
   'Mosaik': PenyakitInfo(
-    namaTampil: 'Mosaik (Leaf Curl Virus)',
+    namaTampil: 'Mosaik (Leaf Curl)',
     gejala: [
-      'Daun mengalami perubahan warna menjadi mosaik atau belang.',
-      'Daun mengeriting atau menggulung.',
-      'Tanaman tumbuh kerdil dan produksi menurun.',
-      'Virus sering ditularkan oleh serangga vektor seperti kutu daun atau thrips.',
+      'Disebabkan beberapa virus seperti CMV, TMV, CVMV, PVY, TEV, ToMV, dan juga bisa berkaitan dengan Pepper leaf curl geminivirus. Gejala umum: daun tampak belang hijau muda dan hijau tua, tulang daun menguning atau muncul jalur kuning sepanjang tulang daun, daun menjadi lebih kecil, sempit, kadang cekung, keriting, menggulung, atau memanjang. Tanaman muda yang terserang biasanya kerdil, pertumbuhan tidak normal, cabang/batang terhambat, dan buah bisa lebih kecil.',
     ],
     pengendalian: [
-      'Mengendalikan vektor serangga seperti kutu daun dan thrips.',
-      'Sanitasi tanaman terinfeksi.',
-      'Menggunakan bibit sehat dan persemaian bebas virus.',
-      'Mengurangi populasi gulma yang menjadi inang virus.',
+      'Cabut dan musnahkan tanaman yang sudah menunjukkan gejala berat, terutama tanaman muda. Kendalikan vektor seperti kutu daun, thrips, dan kutu kebul, pasang perangkap kuning, gunakan mulsa plastik perak atau jerami sesuai kondisi lahan, lakukan sanitasi gulma/inang sekitar, gunakan benih sehat, serta hindari mengambil benih dari tanaman bergejala.',
     ],
   ),
   'Virus Gemini': PenyakitInfo(
     namaTampil: 'Virus Gemini (Yellow Leaf Curl)',
     gejala: [
-      'Daun muda mengalami vein clearing lalu menguning.',
-      'Tulang daun menebal dan daun menggulung ke atas.',
-      'Daun menjadi kecil dan kuning terang.',
-      'Tanaman kerdil dan tidak menghasilkan buah.',
+      'Disebabkan kelompok Geminivirus, sering dikaitkan dengan TYLCV / Tomato Yellow Leaf Curl Virus dan ditularkan oleh kutu kebul (Bemisia tabaci). Gejala awal: daun muda/pucuk mengalami vein clearing, pucuk tampak cekung/mengkerut, muncul mosaik kuning ringan. Gejala lanjut: daun menjadi kuning cerah/kuning terang, tulang daun menebal, daun menggulung ke atas, daun mengecil, tanaman kerdil, dan pada infeksi berat tanaman bisa tidak berbuah.',
     ],
     pengendalian: [
-      'Mengendalikan vektor kutu kebul (Bemisia tabaci).',
-      'Menggunakan varietas tahan virus.',
-      'Sanitasi gulma dan tanaman inang di sekitar lahan.',
-      'Penggunaan mulsa plastik untuk mengurangi populasi vektor.',
-      'Menanam tanaman pembatas seperti jagung atau tagetes.',
+      'Gunakan benih sehat, tutup persemaian dengan kelambu/kasa, pasang perangkap lekat kuning, lakukan sanitasi gulma/inang alternatif, cabut dan musnahkan tanaman sakit, tanam barrier seperti jagung/tagetes/orok-orok/kacang panjang, lakukan rotasi dengan tanaman bukan Solanaceae/Cucurbitaceae, serta kendalikan kutu kebul dengan musuh alami atau insektisida yang terdaftar.',
     ],
   ),
   'Daun Sehat': PenyakitInfo(
     namaTampil: 'Daun Sehat (Healthy)',
     gejala: [
-      'Daun berwarna hijau normal.',
-      'Tidak terdapat bercak, mosaik, keriting, atau nekrosis.',
-      'Pertumbuhan daun tampak normal.',
+      'Daun berwarna hijau normal, tidak terdapat bercak, mosaik, keriting, atau nekrosis. Pertumbuhan daun tampak normal.'
     ],
     pengendalian: [
-      'Lanjutkan perawatan rutin tanaman.',
-      'Jaga sanitasi lahan.',
-      'Lakukan pemantauan berkala untuk deteksi dini.',
+      'Lanjutkan perawatan rutin tanaman. Jaga sanitasi lahan. Serta lakukan pemantauan berkala untuk deteksi dini.',
     ],
   ),
   'Non Daun': PenyakitInfo(
     namaTampil: 'Non Daun',
     gejala: [
-      'Objek yang terdeteksi bukan daun tanaman cabai.',
-      'Tidak memiliki ciri khas struktur atau tekstur daun.',
-      'Dapat berupa latar belakang, tanah, tangan, atau objek lain.'
+      'Objek yang terdeteksi bukan jenis daun tanaman cabai.',
     ],
     pengendalian: [
-      'Pastikan kamera diarahkan langsung ke daun cabai.',
-      'Ambil gambar dengan fokus yang jelas pada daun.',
-      'Hindari objek lain agar tidak mengganggu proses deteksi.'
+      'Pastikan kamera diarahkan langsung ke daun cabai. Ambil gambar dengan fokus yang jelas pada daun. Hindari objek lain agar tidak mengganggu proses deteksi.'
     ],
   ),
 };
