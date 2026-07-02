@@ -39,21 +39,28 @@ class DetailRiwayatScreen extends StatelessWidget {
                     children: [
                       _ImagePreview(item: item),
                       const SizedBox(height: 18),
+
                       _ResultCard(
                         label: item.label,
                         confidence: item.confidence,
                       ),
+
                       const SizedBox(height: 16),
+
                       _InfoSection(
                         icon: Icons.eco_outlined,
                         title: 'Ciri-Ciri Gejala',
                         content: item.gejala,
+                        isBulletMode: false,
                       ),
+
                       const SizedBox(height: 16),
+
                       _InfoSection(
                         icon: Icons.health_and_safety_outlined,
-                        title: 'Pencegahan Awal',
+                        title: 'Pengendalian',
                         content: item.pengendalian,
+                        isBulletMode: true,
                       ),
                     ],
                   ),
@@ -130,7 +137,7 @@ class _ImagePreview extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -229,6 +236,7 @@ class _ResultCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w900,
@@ -254,7 +262,7 @@ class _ResultCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.55),
+                  color: Colors.white.withOpacity(0.55),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: const Color(0xFF9DB68E),
@@ -278,7 +286,7 @@ class _ResultCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: confidencePercent / 100,
               minHeight: 7,
-              backgroundColor: Colors.white.withValues(alpha: 0.55),
+              backgroundColor: Colors.white.withOpacity(0.55),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 Color(0xFF36563C),
               ),
@@ -295,19 +303,50 @@ class _InfoSection extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.content,
+    this.isBulletMode = false,
   });
 
   final IconData icon;
   final String title;
-  final String content;
+
+  /// Dibuat Object? supaya aman:
+  /// - kalau item.gejala masih String, tetap bisa
+  /// - kalau nanti item.pengendalian jadi List<String>, tetap bisa
+  final Object? content;
+
+  final bool isBulletMode;
+
+  List<String> _parseContent() {
+    if (content == null) return [];
+
+    if (content is List) {
+      return (content as List)
+          .map((item) => item.toString().trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+
+    final text = content.toString().trim();
+    if (text.isEmpty) return [];
+
+    if (isBulletMode) {
+      return text
+          .split(RegExp(r'\n+'))
+          .map((item) => item.trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+
+    return text
+        .split(RegExp(r'\n\s*\n'))
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final paragraphs = content
-        .trim()
-        .split(RegExp(r'\n\s*\n'))
-        .where((text) => text.trim().isNotEmpty)
-        .toList();
+    final items = _parseContent();
 
     return Container(
       width: double.infinity,
@@ -324,10 +363,11 @@ class _InfoSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 17,
-                backgroundColor: Colors.white.withValues(alpha: 0.55),
+                backgroundColor: Colors.white.withOpacity(0.55),
                 child: Icon(
                   icon,
                   size: 20,
@@ -342,30 +382,147 @@ class _InfoSection extends StatelessWidget {
                     fontSize: 16.5,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF36563C),
+                    height: 1.2,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          ...List.generate(paragraphs.length, (index) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: index == paragraphs.length - 1 ? 0 : 14,
+
+          if (items.isEmpty)
+            const Text(
+              '-',
+              style: TextStyle(
+                fontSize: 14.8,
+                height: 1.6,
+                color: Color(0xFF36563C),
+                fontWeight: FontWeight.w500,
               ),
-              child: Text(
-                paragraphs[index].trim(),
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  height: 1.65,
-                  color: Color(0xFF36563C),
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.05,
-                ),
+            )
+          else if (isBulletMode)
+            ...List.generate(items.length, (index) {
+              return _BulletText(
+                text: items[index],
+                isLast: index == items.length - 1,
+              );
+            })
+          else
+            ...List.generate(items.length, (index) {
+              return _ParagraphText(
+                text: items[index],
+                isLast: index == items.length - 1,
+              );
+            }),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParagraphText extends StatelessWidget {
+  const _ParagraphText({
+    required this.text,
+    required this.isLast,
+  });
+
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final match = RegExp(r'^([^:]{2,35}):\s*(.*)$').firstMatch(text);
+
+    if (match == null) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+        child: Text(
+          text,
+          textAlign: TextAlign.justify,
+          softWrap: true,
+          style: const TextStyle(
+            fontSize: 14.8,
+            height: 1.62,
+            color: Color(0xFF36563C),
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.02,
+          ),
+        ),
+      );
+    }
+
+    final label = match.group(1) ?? '';
+    final body = match.group(2) ?? '';
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      child: RichText(
+        textAlign: TextAlign.justify,
+        text: TextSpan(
+          style: const TextStyle(
+            fontSize: 14.8,
+            height: 1.62,
+            color: Color(0xFF36563C),
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.02,
+          ),
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
               ),
-            );
-          }),
+            ),
+            TextSpan(text: body),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BulletText extends StatelessWidget {
+  const _BulletText({
+    required this.text,
+    required this.isLast,
+  });
+
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanText = text.replaceFirst(RegExp(r'^[-•]\s*'), '');
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            margin: const EdgeInsets.only(top: 8.5),
+            decoration: const BoxDecoration(
+              color: Color(0xFF36563C),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cleanText,
+              textAlign: TextAlign.justify,
+              softWrap: true,
+              style: const TextStyle(
+                fontSize: 14.8,
+                height: 1.55,
+                color: Color(0xFF36563C),
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.02,
+              ),
+            ),
+          ),
         ],
       ),
     );

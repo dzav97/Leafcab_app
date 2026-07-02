@@ -128,7 +128,6 @@ class _HasilScreenState extends State<HasilScreen> {
       );
 
       await repo.simpan(record);
-
       await syncService.syncRiwayat();
 
       if (!mounted) return;
@@ -223,16 +222,21 @@ class _HasilScreenState extends State<HasilScreen> {
                               confidence: _confidence,
                             ),
                             const SizedBox(height: 16),
+
                             _InfoSection(
                               icon: Icons.eco_outlined,
                               title: 'Ciri-Ciri Gejala',
-                              content: _gejalaList.join('\n\n'),
+                              contentItems: _gejalaList,
+                              isBulletMode: false,
                             ),
+
                             const SizedBox(height: 16),
+
                             _InfoSection(
                               icon: Icons.health_and_safety_outlined,
-                              title: 'Pencegahan Awal',
-                              content: _pengendalianList.join('\n\n'),
+                              title: 'Pengendalian',
+                              contentItems: _pengendalianList,
+                              isBulletMode: true,
                             ),
                           ],
                         ),
@@ -451,20 +455,46 @@ class _InfoSection extends StatelessWidget {
   const _InfoSection({
     required this.icon,
     required this.title,
-    required this.content,
+    required this.contentItems,
+    this.isBulletMode = false,
   });
 
   final IconData icon;
   final String title;
-  final String content;
+  final List<String> contentItems;
+  final bool isBulletMode;
+
+  List<String> _getCleanItems() {
+    final cleanedItems = contentItems
+        .map((text) => text.trim())
+        .where((text) => text.isNotEmpty)
+        .toList();
+
+    if (!isBulletMode) {
+      return cleanedItems;
+    }
+
+    if (cleanedItems.length == 1) {
+      final onlyText = cleanedItems.first;
+
+      final sentenceItems = onlyText
+          .split(RegExp(r'\.\s+'))
+          .map((text) => text.trim())
+          .where((text) => text.isNotEmpty)
+          .map((text) => text.endsWith('.') ? text : '$text.')
+          .toList();
+
+      if (sentenceItems.length > 1) {
+        return sentenceItems;
+      }
+    }
+
+    return cleanedItems;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final paragraphs = content
-        .trim()
-        .split(RegExp(r'\n\s*\n'))
-        .where((text) => text.trim().isNotEmpty)
-        .toList();
+    final items = _getCleanItems();
 
     return Container(
       width: double.infinity,
@@ -481,6 +511,7 @@ class _InfoSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 17,
@@ -499,30 +530,147 @@ class _InfoSection extends StatelessWidget {
                     fontSize: 16.5,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF36563C),
+                    height: 1.2,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          ...List.generate(paragraphs.length, (index) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: index == paragraphs.length - 1 ? 0 : 14,
+
+          if (items.isEmpty)
+            const Text(
+              '-',
+              style: TextStyle(
+                fontSize: 14.8,
+                height: 1.6,
+                color: Color(0xFF36563C),
+                fontWeight: FontWeight.w500,
               ),
-              child: Text(
-                paragraphs[index].trim(),
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  height: 1.65,
-                  color: Color(0xFF36563C),
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.05,
-                ),
+            )
+          else
+            ...List.generate(items.length, (index) {
+              if (isBulletMode) {
+                return _BulletText(
+                  text: items[index],
+                  isLast: index == items.length - 1,
+                );
+              }
+
+              return _ParagraphText(
+                text: items[index],
+                isLast: index == items.length - 1,
+              );
+            }),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParagraphText extends StatelessWidget {
+  const _ParagraphText({
+    required this.text,
+    required this.isLast,
+  });
+
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final match = RegExp(r'^([^:]{2,35}):\s*(.*)$').firstMatch(text);
+
+    if (match == null) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+        child: Text(
+          text,
+          textAlign: TextAlign.justify,
+          softWrap: true,
+          style: const TextStyle(
+            fontSize: 14.8,
+            height: 1.62,
+            color: Color(0xFF36563C),
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.02,
+          ),
+        ),
+      );
+    }
+
+    final label = match.group(1) ?? '';
+    final body = match.group(2) ?? '';
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      child: RichText(
+        textAlign: TextAlign.justify,
+        text: TextSpan(
+          style: const TextStyle(
+            fontSize: 14.8,
+            height: 1.62,
+            color: Color(0xFF36563C),
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.02,
+          ),
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
               ),
-            );
-          }),
+            ),
+            TextSpan(text: body),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BulletText extends StatelessWidget {
+  const _BulletText({
+    required this.text,
+    required this.isLast,
+  });
+
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanText = text.replaceFirst(RegExp(r'^[-•]\s*'), '');
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 11),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            margin: const EdgeInsets.only(top: 8.5),
+            decoration: const BoxDecoration(
+              color: Color(0xFF36563C),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              cleanText,
+              textAlign: TextAlign.start,
+              softWrap: true,
+              style: const TextStyle(
+                fontSize: 14.8,
+                height: 1.55,
+                color: Color(0xFF36563C),
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.02,
+              ),
+            ),
+          ),
         ],
       ),
     );
