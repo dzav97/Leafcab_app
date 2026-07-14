@@ -27,21 +27,21 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
 
   String? get _userId => FirebaseAuth.instance.currentUser?.uid;
 
-  @override
-  void initState() {
-    super.initState();
-    _futureRiwayat = _loadLocalRiwayat();
-    _syncInBackground();
-  }
-
   Future<List<RiwayatDeteksi>> _loadLocalRiwayat() async {
     final userId = _userId;
     if (userId == null) return [];
 
-    return repo.ambilDaftar(userId);
+    return await repo.ambilDaftar(userId);
   }
 
-  Future<void> _syncInBackground() async {
+  @override
+  void initState() {
+    super.initState();
+    _futureRiwayat = _loadLocalRiwayat();
+    _syncInBackground(restore: false);
+  }
+
+  Future<void> _syncInBackground({bool restore = true}) async {
     final userId = _userId;
     if (userId == null || _isSyncing) return;
 
@@ -52,9 +52,11 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         const Duration(seconds: 8),
       );
 
-      await syncService.restoreRiwayatDariCloud().timeout(
-        const Duration(seconds: 8),
-      );
+      if (restore) {
+        await syncService.restoreRiwayatDariCloud().timeout(
+          const Duration(seconds: 8),
+        );
+      }
 
       if (!mounted) return;
 
@@ -73,7 +75,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
       _futureRiwayat = _loadLocalRiwayat();
     });
 
-    await _syncInBackground();
+    await _syncInBackground(restore: true);
   }
 
   Future<void> _showResultDialog({
@@ -170,14 +172,14 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         _futureRiwayat = _loadLocalRiwayat();
       });
 
+      await _syncInBackground(restore: false);
+
       await _showResultDialog(
         title: 'Berhasil',
         message: 'Riwayat berhasil dihapus.',
         icon: Icons.check_circle_rounded,
         iconColor: const Color(0xFF2FA84F),
       );
-
-      _syncInBackground();
     } catch (e) {
       debugPrint('Gagal menghapus riwayat: $e');
 

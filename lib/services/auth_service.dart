@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import '../data/dataproviders/database_helper.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,7 +39,7 @@ class AuthService {
       return 'Akun berhasil dibuat. Link verifikasi telah dikirim ke email Anda.';
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        return 'Password terlalu lemah.';
+        return 'Password minimal 6 karakter.';
       } else if (e.code == 'email-already-in-use') {
         return 'Email sudah terdaftar.';
       } else if (e.code == 'invalid-email') {
@@ -128,7 +132,7 @@ class AuthService {
       if (e.code == 'invalid-credential' ||
           e.code == 'wrong-password' ||
           e.code == 'user-not-found') {
-        return 'Email atau password salah.';
+        return 'Periksa kembali email dan password Anda.';
       } else if (e.code == 'invalid-email') {
         return 'Format email tidak valid.';
       } else if (e.code == 'too-many-requests') {
@@ -257,9 +261,13 @@ class AuthService {
   }) async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return 'User tidak ditemukan.';
+
+      if (user == null) {
+        return 'User tidak ditemukan.';
+      }
 
       final email = user.email;
+
       if (email == null || email.isEmpty) {
         return 'Email user tidak ditemukan.';
       }
@@ -270,17 +278,72 @@ class AuthService {
       );
 
       await user.reauthenticateWithCredential(credential);
+
+      final uid = user.uid;
+
+      // 1. Hapus riwayat Firestore
+      final riwayatSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('riwayat_deteksi')
+          .get();
+
+      for (final doc in riwayatSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // 2. Hapus dokumen user Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .delete();
+
+      debugPrint('Dokumen Firestore user berhasil dihapus');
+
+      // 3. Hapus SQLite lokal
+      final db = await DatabaseHelper.instance.database;
+
+      final gambar = await db.query(
+        'riwayat_deteksi',
+        columns: ['gambar'],
+        where: 'user_id = ?',
+        whereArgs: [uid],
+      );
+
+      for (final item in gambar) {
+        final path = item['gambar'] as String?;
+
+        if (path != null && path.isNotEmpty) {
+          final file = File(path);
+
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+
+      await db.delete(
+        'riwayat_deteksi',
+        where: 'user_id = ?',
+        whereArgs: [uid],
+      );
+
+      // 4. Hapus akun Firebase Authentication
       await user.delete();
+
+      await _auth.signOut();
 
       return null;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+      if (e.code == 'wrong-password' ||
+          e.code == 'invalid-credential') {
         return 'Password salah.';
       } else if (e.code == 'requires-recent-login') {
         return 'Silakan login ulang lalu coba lagi.';
       } else if (e.code == 'too-many-requests') {
         return 'Terlalu banyak percobaan. Coba lagi nanti.';
       }
+
       return e.message ?? 'Gagal menghapus akun.';
     } catch (e) {
       return 'Terjadi kesalahan saat menghapus akun: $e';
