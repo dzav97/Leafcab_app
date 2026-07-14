@@ -137,7 +137,7 @@ class _ImagePreview extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha:0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -262,7 +262,7 @@ class _ResultCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.55),
+                  color: Colors.white.withValues(alpha:0.55),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: const Color(0xFF9DB68E),
@@ -286,7 +286,7 @@ class _ResultCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: confidencePercent / 100,
               minHeight: 7,
-              backgroundColor: Colors.white.withOpacity(0.55),
+              backgroundColor: Colors.white.withValues(alpha:0.55),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 Color(0xFF36563C),
               ),
@@ -309,9 +309,6 @@ class _InfoSection extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  /// Dibuat Object? supaya aman:
-  /// - kalau item.gejala masih String, tetap bisa
-  /// - kalau nanti item.pengendalian jadi List<String>, tetap bisa
   final Object? content;
 
   final bool isBulletMode;
@@ -367,7 +364,7 @@ class _InfoSection extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 17,
-                backgroundColor: Colors.white.withOpacity(0.55),
+                backgroundColor: Colors.white.withValues(alpha:0.55),
                 child: Icon(
                   icon,
                   size: 20,

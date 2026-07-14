@@ -132,7 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _showMessageDialog(
         title: 'Verifikasi Email',
         message:
-            'Akun berhasil dibuat. Link verifikasi telah dikirim ke email kamu. Silakan cek Gmail dan lakukan verifikasi sebelum login.',
+            'Akun berhasil dibuat. Link verifikasi telah dikirim ke email anda. Silakan cek Gmail dan lakukan verifikasi sebelum login.',
         isSuccess: true,
       );
 

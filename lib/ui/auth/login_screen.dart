@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Masukkan email kamu. Link reset password akan dikirim ke email tersebut.',
+              'Masukkan email anda. Link reset password akan dikirim ke email tersebut.',
               style: TextStyle(
                 color: dark,
                 fontSize: 13,
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     await _showMessageDialog(
       title: pesan == null ? 'Berhasil' : 'Informasi',
-      message: pesan ?? 'Link reset password berhasil dikirim ke email kamu.',
+      message: pesan ?? 'Link reset password berhasil dikirim ke email anda.',
       isSuccess: true,
     );
   }

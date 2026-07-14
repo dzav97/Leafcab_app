@@ -281,7 +281,7 @@ class AuthService {
 
       final uid = user.uid;
 
-      // 1. Hapus riwayat Firestore
+      // Hapus riwayat Firestore
       final riwayatSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -292,7 +292,7 @@ class AuthService {
         await doc.reference.delete();
       }
 
-      // 2. Hapus dokumen user Firestore
+      // Hapus dokumen user Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -300,7 +300,7 @@ class AuthService {
 
       debugPrint('Dokumen Firestore user berhasil dihapus');
 
-      // 3. Hapus SQLite lokal
+      // Hapus SQLite lokal
       final db = await DatabaseHelper.instance.database;
 
       final gambar = await db.query(
@@ -328,7 +328,7 @@ class AuthService {
         whereArgs: [uid],
       );
 
-      // 4. Hapus akun Firebase Authentication
+      // Hapus akun
       await user.delete();
 
       await _auth.signOut();
